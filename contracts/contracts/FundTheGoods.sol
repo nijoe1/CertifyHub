@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import {IEAS, Attestation, AttestationResolutionVoting, TokenGatedAccess, TokenGatedType, RevocationRequest, RevocationRequestData} from "./interfaces/IEAS.sol";
 
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {SchemaResolver} from "./EAS/SchemaResolver.sol";
 import {IHypercert} from "./interfaces/IHypercert.sol";
+import {IEAS, Attestation} from "./interfaces/IEAS.sol";
+import { ITableland } from "./interfaces/ITableland.sol";
 
 /**
  * @title FundTheGoods
@@ -20,6 +21,7 @@ contract FundTheGoods is SchemaResolver{
 
     IHypercert hypercertContract;
     IERC1155 tokenGatedProjectVerifiers;
+    ITableland indexerContract;
     address thirdwebFactoryAddress;
     address splitterAddress;
 
@@ -29,12 +31,19 @@ contract FundTheGoods is SchemaResolver{
     /// @dev Bitmask used to expose only lower 128 bits of uint256
     uint256 internal constant NF_INDEX_MASK = type(uint256).max >> 128;
 
-    constructor(IHypercert _hypercertContract, address _thirdwebFactoryAddress, address _splitterAddress,IEAS _eas, IERC1155 _tokenGatedProjectVerifiers
+    constructor(
+        IERC1155 _tokenGatedProjectVerifiers,
+        IHypercert _hypercertContract,
+        ITableland _indexerContract, 
+        address _thirdwebFactoryAddress, 
+        address _splitterAddress,
+        IEAS _eas
     ) SchemaResolver(_eas){
         hypercertContract = _hypercertContract;
         thirdwebFactoryAddress = _thirdwebFactoryAddress;
         splitterAddress = _splitterAddress;
         tokenGatedProjectVerifiers = _tokenGatedProjectVerifiers;
+        indexerContract = _indexerContract;
     }
 
     struct Project{
@@ -42,14 +51,13 @@ contract FundTheGoods is SchemaResolver{
         uint256 totalShares;
         EnumerableSet.AddressSet owners;
         mapping(address => uint256) ownersShares;
-        bool registered;
     }
 
     mapping(uint256 => Project) private projectInfo;
 
     EnumerableSet.UintSet private Projects;
 
-    function registerProject(uint256 claimID, uint256[] memory fractionClaimIDs) external{
+    function registerHypercertProject(uint256 claimID, uint256[] memory fractionClaimIDs, string[] memory categories) external{
 
         require(isBaseType(claimID),"not base type");
 
@@ -57,35 +65,26 @@ contract FundTheGoods is SchemaResolver{
 
         uint256 totalShares = hypercertContract.unitsOf(claimID);
 
-        require((100 - (totalShares % 100)) % 100 == 0);
-
-        uint256 expectedShares;
-
-        uint256 fractionClaimID;
-
-        uint256 fractionShares;
-
-        address fractionOwner;
+        uint size = fractionClaimIDs.length;
 
         Project storage project = projectInfo[claimID];
 
-        for(uint i = 0; i < fractionClaimIDs.length; i++){
-            fractionClaimID = fractionClaimIDs[i];
+        uint256[] memory shares = new uint256[](size);
+        address[] memory owners = new address[](size);
+
+        for(uint i = 0; i < size; i++){
+            uint256 fractionClaimID = fractionClaimIDs[i];
             require(baseType == getBaseType(fractionClaimID));
             require(isTypedItem(fractionClaimID));
-            fractionShares = hypercertContract.unitsOf(fractionClaimIDs[i]);
-            fractionOwner = hypercertContract.ownerOf(fractionClaimID);
-            expectedShares += fractionShares;
+            uint256 fractionShares = hypercertContract.unitsOf(fractionClaimID);
+            address fractionOwner = hypercertContract.ownerOf(fractionClaimID);
             project.owners.add(fractionOwner);
             project.ownersShares[fractionOwner] = fractionShares;
+            owners[i] = fractionOwner;
+            shares[i] = fractionShares;
         }
-
-        require(expectedShares == totalShares);
-        project.registered = true;
         project.totalShares = totalShares;
-
-        Projects.add(claimID);
-
+        indexerContract.insertHypercertInfo(claimID, hypercertContract.uri(claimID), hypercertContract.ownerOf(claimID), owners, shares, categories);
     }
 
     // VIEW FUNCTIONS
@@ -123,12 +122,20 @@ contract FundTheGoods is SchemaResolver{
     */
     function onAttest(
         Attestation calldata attestation,
-        uint256 /* value */
-    ) internal override view returns (bool) {
-        (,,uint256 projectID,uint256 rangeFeedback,string memory verifierFrom) = abi.decode(attestation.data, (string,string,uint256,uint256,string));
+        uint256 value
+    ) internal override returns (bool) {
+        (string memory comment,uint256 projectID,uint8 rangeFeedback,string memory verifierFrom) = abi.decode(attestation.data, (string,uint256,uint8,string));
         if(!Projects.contains(projectID))return false;
-        if(rangeFeedback > 5 || rangeFeedback < 0) return false;
-        if(tokenGatedProjectVerifiers.balanceOf(attestation.attester,uint256(keccak256(abi.encode(verifierFrom)))) > 0) return true;
+        if(rangeFeedback > 6) return false;
+        if(rangeFeedback == 0 && value > 0){
+            // ADD FUNDING 
+            indexerContract.insertFunding(projectID, verifierFrom, value);
+            projectInfo[projectID].fundingPool += value;
+            return true;
+        }else if(tokenGatedProjectVerifiers.balanceOf(attestation.attester,uint256(keccak256(abi.encode(verifierFrom)))) > 0){
+            indexerContract.insertAttestation(projectID, attestation.attester, verifierFrom, rangeFeedback, comment);
+            return true;
+        }
         return false;
     }
 
@@ -148,21 +155,7 @@ contract FundTheGoods is SchemaResolver{
      * @return True, indicating that the contract can accept payments.
      */
     function isPayable() public override pure returns (bool) {
-        return false;
-    }
-
-
-    /** 
-    * @dev Distributes minting funds among attesters using a splitter contract.
-    * This function calculates the distribution of funds based on attestation counts and shares,
-    * deploys a splitter contract, and sends the funds to it for distribution.
-    */
-    function fundProject(uint256 projectID) external payable {
-        Project storage project = projectInfo[projectID];
-        
-        require(project.registered, "non registered project");
-
-        project.fundingPool += msg.value;
+        return true;
     }
 
     /** 
@@ -173,7 +166,7 @@ contract FundTheGoods is SchemaResolver{
     function splitFunds(uint256 projectID) external {
         Project storage project = projectInfo[projectID];
 
-        require(project.registered, "non registered project");
+        require(Projects.contains(projectID), "non registered project");
 
         // Get the current distribution round and available funds to split
         uint256 fundsToSplit = project.fundingPool;
@@ -187,6 +180,17 @@ contract FundTheGoods is SchemaResolver{
             owner = owners[i];
             ownerShares = project.ownersShares[owner];
             ownersShares[i] = ownerShares;
+        }
+
+                // Calculate the remaining shares needed to reach a multiple of 100
+        uint256 remainingShares = (1000 - (project.totalShares % 1000)) % 1000;
+
+        // Distribute one share to each address until no remaining shares are left
+        uint256 currentIndex = 0;
+        while (remainingShares > 0) {
+            ownersShares[currentIndex]++;
+            remainingShares--;
+            currentIndex = (currentIndex + 1) % ownersShares.length;
         }
 
         address[] memory _trustedForwarders = new address[](0);
