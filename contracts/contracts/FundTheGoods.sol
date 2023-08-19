@@ -19,6 +19,7 @@ contract FundTheGoods is SchemaResolver{
     using EnumerableSet for EnumerableSet.UintSet;
 
     IHypercert hypercertContract;
+    IERC1155 tokenGatedProjectVerifiers;
     address thirdwebFactoryAddress;
     address splitterAddress;
 
@@ -28,11 +29,12 @@ contract FundTheGoods is SchemaResolver{
     /// @dev Bitmask used to expose only lower 128 bits of uint256
     uint256 internal constant NF_INDEX_MASK = type(uint256).max >> 128;
 
-    constructor(IHypercert _hypercertContract, address _thirdwebFactoryAddress, address _splitterAddress,IEAS _eas
+    constructor(IHypercert _hypercertContract, address _thirdwebFactoryAddress, address _splitterAddress,IEAS _eas, IERC1155 _tokenGatedProjectVerifiers
     ) SchemaResolver(_eas){
         hypercertContract = _hypercertContract;
         thirdwebFactoryAddress = _thirdwebFactoryAddress;
         splitterAddress = _splitterAddress;
+        tokenGatedProjectVerifiers = _tokenGatedProjectVerifiers;
     }
 
     struct Project{
@@ -122,19 +124,22 @@ contract FundTheGoods is SchemaResolver{
     function onAttest(
         Attestation calldata attestation,
         uint256 /* value */
-    ) internal override returns (bool) {
-        return true;
+    ) internal override view returns (bool) {
+        (,,uint256 projectID,uint256 rangeFeedback,string memory verifierFrom) = abi.decode(attestation.data, (string,string,uint256,uint256,string));
+        if(!Projects.contains(projectID))return false;
+        if(rangeFeedback > 5 || rangeFeedback < 0) return false;
+        if(tokenGatedProjectVerifiers.balanceOf(attestation.attester,uint256(keccak256(abi.encode(verifierFrom)))) > 0) return true;
+        return false;
     }
 
     /**
     * @dev Checks if an attestation can be revoked based on resolution status and time.
-    * @param attestation The attestation data.
     * @return Boolean indicating whether the attestation can be revoked.
     */
     function onRevoke(
-        Attestation calldata attestation,
+        Attestation calldata /* attestation */,
         uint256 /* value */
-    ) internal override returns (bool) {
+    ) internal override pure returns (bool) {
         return false;
     }
 
@@ -176,7 +181,6 @@ contract FundTheGoods is SchemaResolver{
         // Get the list of valid attesters and calculate their shares across all rounds
         address[] memory owners = project.owners.values();
         uint256[] memory ownersShares = new uint256[](owners.length);
-        uint256 totalShares = project.totalShares;
         address owner;
         uint256 ownerShares;
         for (uint256 i = 0; i < owners.length; i++) {
