@@ -27,12 +27,6 @@ contract TablelandStorage is Ownable {
     uint256[] private tableIDs;
 
     string private baseURIString;
-
-    string private constant HYPERCERT_TABLE_PREFIX = "hypercert";
-    string private constant HYPERCERT_SCHEMA = "claimID text, uri text, creator text";
-
-    string private constant HYPERCERT_OWNERS_TABLE_PREFIX = "hypercert_owners";
-    string private constant HYPERCERT_OWNERS_SCHEMA = "claimID text, owner text, shares text";
         
     string private constant HYPERCERT_CATEGORIES_TABLE_PREFIX = "hypercert_categories";
     string private constant HYPERCERT_CATEGORIES_SCHEMA = "claimID text, category text";
@@ -47,10 +41,6 @@ contract TablelandStorage is Ownable {
     constructor() {
         tablelandContract = TablelandDeployments.get();
 
-        createStatements.push(SQLHelpers.toCreateFromSchema(HYPERCERT_SCHEMA, HYPERCERT_TABLE_PREFIX));
-        createStatements.push(
-            SQLHelpers.toCreateFromSchema(HYPERCERT_OWNERS_SCHEMA, HYPERCERT_OWNERS_TABLE_PREFIX)
-        );
         createStatements.push(
             SQLHelpers.toCreateFromSchema(HYPERCERT_CATEGORIES_SCHEMA, HYPERCERT_CATEGORIES_TABLE_PREFIX)
         );
@@ -64,69 +54,33 @@ contract TablelandStorage is Ownable {
 
         tableIDs = tablelandContract.create(address(this), createStatements);
 
-        tables.push(SQLHelpers.toNameFromId(HYPERCERT_TABLE_PREFIX, tableIDs[0]));
-        tables.push(SQLHelpers.toNameFromId(HYPERCERT_OWNERS_TABLE_PREFIX, tableIDs[1]));
-        tables.push(SQLHelpers.toNameFromId(HYPERCERT_CATEGORIES_TABLE_PREFIX, tableIDs[2]));
-        tables.push(SQLHelpers.toNameFromId(HYPERCERT_FUNDINGS_TABLE_PREFIX, tableIDs[3]));
-        tables.push(SQLHelpers.toNameFromId(ATTESTATIONS_TABLE_PREFIX, tableIDs[4]));
+   
+        tables.push(SQLHelpers.toNameFromId(HYPERCERT_CATEGORIES_TABLE_PREFIX, tableIDs[0]));
+        tables.push(SQLHelpers.toNameFromId(HYPERCERT_FUNDINGS_TABLE_PREFIX, tableIDs[1]));
+        tables.push(SQLHelpers.toNameFromId(ATTESTATIONS_TABLE_PREFIX, tableIDs[2]));
     }
 
-    /*
-     * @dev Internal function to perform an update on the main table.
-     * @param {stringp[]} set: Array of SET statements for the update.
-     * @param {string} filter:Filter condition for the update.
-     */
-    function toUpdate(string[] memory set, string memory filter) public onlyOwner {
-        mutate(mainID, SQLHelpers.toUpdate(HYPERCERT_TABLE_PREFIX, mainID, set[0], filter));
-        mutate(mainID, SQLHelpers.toUpdate(HYPERCERT_TABLE_PREFIX, mainID, set[1], filter));
-    }
+    // /*
+    //  * @dev Internal function to perform an update on the main table.
+    //  * @param {stringp[]} set: Array of SET statements for the update.
+    //  * @param {string} filter:Filter condition for the update.
+    //  */
+    // function toUpdate(string[] memory set, string memory filter) public onlyOwner {
+    //     mutate(mainID, SQLHelpers.toUpdate(HYPERCERT_TABLE_PREFIX, mainID, set[0], filter));
+    //     mutate(mainID, SQLHelpers.toUpdate(HYPERCERT_TABLE_PREFIX, mainID, set[1], filter));
+    // }
 
     function insertHypercertInfo(
         uint256 claimID,
-        string memory uri,
-        address creator,
-        address[] memory owners,
-        uint256[] memory shares,
         string[] memory categories
     ) public onlyOwner {
-        mutate(
-            tableIDs[0],
-            SQLHelpers.toInsert(
-                HYPERCERT_TABLE_PREFIX,
-                tableIDs[0],
-                "claimID, uri, creator",
-                string.concat(
-                    SQLHelpers.quote(Strings.toString(claimID)),
-                    ",",
-                    SQLHelpers.quote(uri),
-                    ",",
-                    SQLHelpers.quote(Strings.toHexString(creator))
-                )
-            )
-        );
-        for(uint i = 0; i < owners.length; i++){
-            mutate(
-                tableIDs[1],
-                SQLHelpers.toInsert(
-                    HYPERCERT_OWNERS_TABLE_PREFIX,
-                    tableIDs[1],
-                    "claimID, owner, shares",
-                    string.concat(
-                        SQLHelpers.quote(Strings.toString(claimID)),
-                        ",",
-                        SQLHelpers.quote(Strings.toHexString(owners[i])),
-                        ",",
-                        SQLHelpers.quote(Strings.toString(shares[i]))
-                    )
-                )
-            );
-        }
+
         for(uint i = 0; i < categories.length; i++){
             mutate(
-                tableIDs[2],
+                tableIDs[0],
                 SQLHelpers.toInsert(
                     HYPERCERT_CATEGORIES_TABLE_PREFIX,
-                    tableIDs[2],
+                    tableIDs[0],
                     "claimID, category",
                     string.concat(
                         SQLHelpers.quote(Strings.toString(claimID)),
@@ -146,10 +100,10 @@ contract TablelandStorage is Ownable {
         string memory comment
     ) public onlyOwner {
         mutate(
-            tableIDs[4],
+            tableIDs[2],
             SQLHelpers.toInsert(
                 ATTESTATIONS_TABLE_PREFIX,
-                tableIDs[4],
+                tableIDs[2],
                 "claimID, verifier, company, feedbackRange, comment",
                 string.concat(
                     SQLHelpers.quote((Strings.toString(claimID))),
@@ -172,10 +126,10 @@ contract TablelandStorage is Ownable {
         uint256 fundAmount
     ) public onlyOwner {
         mutate(
-            tableIDs[3],
+            tableIDs[1],
             SQLHelpers.toInsert(
                 HYPERCERT_FUNDINGS_TABLE_PREFIX,
-                tableIDs[3],
+                tableIDs[1],
                 "claimID, funder, fundAmount",
                 string.concat(
                     SQLHelpers.quote((Strings.toString(claimID))),

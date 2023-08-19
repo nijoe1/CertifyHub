@@ -19,10 +19,6 @@ interface ITableland {
 
     function insertHypercertInfo(
         uint256 claimID,
-        string memory uri,
-        address creator,
-        address[] memory owners,
-        uint256[] memory shares,
         string[] memory categories
     ) external; 
 }

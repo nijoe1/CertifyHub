@@ -47,9 +47,11 @@ contract FundTheGoods is SchemaResolver{
     }
 
     struct Project{
+        address creator;
         uint256 fundingPool;
         uint256 totalShares;
         EnumerableSet.AddressSet owners;
+        EnumerableSet.UintSet fractions;
         mapping(address => uint256) ownersShares;
     }
 
@@ -58,6 +60,7 @@ contract FundTheGoods is SchemaResolver{
     EnumerableSet.UintSet private Projects;
 
     function registerHypercertProject(uint256 claimID, uint256[] memory fractionClaimIDs, string[] memory categories) external{
+        require(msg.sender == hypercertContract.ownerOf(claimID));
 
         require(isBaseType(claimID),"not base type");
 
@@ -69,9 +72,6 @@ contract FundTheGoods is SchemaResolver{
 
         Project storage project = projectInfo[claimID];
 
-        uint256[] memory shares = new uint256[](size);
-        address[] memory owners = new address[](size);
-
         for(uint i = 0; i < size; i++){
             uint256 fractionClaimID = fractionClaimIDs[i];
             require(baseType == getBaseType(fractionClaimID));
@@ -79,12 +79,35 @@ contract FundTheGoods is SchemaResolver{
             uint256 fractionShares = hypercertContract.unitsOf(fractionClaimID);
             address fractionOwner = hypercertContract.ownerOf(fractionClaimID);
             project.owners.add(fractionOwner);
-            project.ownersShares[fractionOwner] = fractionShares;
-            owners[i] = fractionOwner;
-            shares[i] = fractionShares;
+            project.fractions.add(fractionClaimID);
+            project.ownersShares[fractionOwner] += fractionShares;
         }
+
+        project.creator = hypercertContract.ownerOf(claimID);
+        Projects.add(claimID);
         project.totalShares = totalShares;
-        indexerContract.insertHypercertInfo(claimID, hypercertContract.uri(claimID), hypercertContract.ownerOf(claimID), owners, shares, categories);
+        indexerContract.insertHypercertInfo(claimID, categories);
+    }
+
+    function updateProject(uint256 claimID, uint256[] memory fractionClaimIDs) external{
+        require(Projects.contains(claimID));
+        uint size = fractionClaimIDs.length;
+
+        Project storage project = projectInfo[claimID];
+
+        for(uint i = 0; i < size; i++){
+            uint256 fractionClaimID = fractionClaimIDs[i];
+            if(project.fractions.contains(fractionClaimID)){
+                continue;
+            }
+            require(isTypedItem(fractionClaimID));
+            uint256 fractionShares = hypercertContract.unitsOf(fractionClaimID);
+            address fractionOwner = hypercertContract.ownerOf(fractionClaimID);
+            project.owners.add(fractionOwner);
+            project.fractions.add(fractionClaimID);
+            project.ownersShares[fractionOwner] += fractionShares;
+        }
+
     }
 
     // VIEW FUNCTIONS
