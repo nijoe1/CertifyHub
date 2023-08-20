@@ -46,6 +46,26 @@ export default function Home() {
   return (
     <div className={`flex flex-col min-h-screen ${inter.className}`}>
       <Navbar />
+      <section className="dark:bg-gray-800 dark:text-gray-100">
+        <div className="container mx-auto flex flex-col items-center px-4 py-16 text-center md:py-32 md:px-10 lg:px-32 xl:max-w-3xl">
+          <h1 className="text-4xl font-bold leadi sm:text-5xl"> 
+            Fund 
+            <span className="dark:text-violet-400"> the </span>
+             Commons 
+          </h1>
+          <p className="px-8 mt-8 mb-12 text-lg">
+            Import you project or you database get verified and bring new opportunities to your idea from public goods funding from the best in the web3 industry
+          </p>
+          <div className="flex flex-wrap justify-center">
+            <button className="px-8 py-3 m-2 text-lg font-semibold rounded dark:bg-violet-400 dark:text-gray-900">
+              Get started
+            </button>
+            <button className="px-8 py-3 m-2 text-lg border rounded dark:text-gray-50 dark:border-gray-700">
+              Source Code
+            </button>
+          </div>
+        </div>
+      </section>
       <main className="flex flex-col items-center justify-between p-24">
         <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left mt-24 lg:mt-0">
           {links.map((link, index) => (
@@ -69,7 +89,7 @@ export default function Home() {
         </div>
         {/* Add ClaimTokensComponent if needed */}
       </main>
-	  <div className="flex-grow"></div> {/* Empty block to push the footer */}
+      <div className="flex-grow"></div> {/* Empty block to push the footer */}
       <Footer /> {/* Add the Footer component here */}
     </div>
   );
