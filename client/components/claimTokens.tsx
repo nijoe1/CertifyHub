@@ -46,7 +46,7 @@ function ClaimTokensComponent() {
   useEffect(() => {
     // You can await here
     const claimId =
-      "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-4051401860560693345994938076082632325595136"; // Replace with your claim ID
+      "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-4065353437604451822996936434987334822264832"; // Replace with your claim ID
     getClaims(claimId);
   }, []);
 

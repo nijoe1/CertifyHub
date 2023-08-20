@@ -89,6 +89,7 @@ export default function Home() {
         </div>
         {/* Add ClaimTokensComponent if needed */}
       </main>
+      {/* <ClaimTokensComponent></ClaimTokensComponent> */}
       <div className="flex-grow"></div> {/* Empty block to push the footer */}
       <Footer /> {/* Add the Footer component here */}
     </div>

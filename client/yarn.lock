@@ -1923,6 +1923,11 @@
     "@repeaterjs/repeater" "^3.0.4"
     tslib "^2.3.1"
 
+"@heroicons/react@^2.0.18":
+  version "2.0.18"
+  resolved "https://registry.yarnpkg.com/@heroicons/react/-/react-2.0.18.tgz#f80301907c243df03c7e9fd76c0286e95361f7c1"
+  integrity sha512-7TyMjRrZZMBPa+/5Y8lN0iyvUU/01PeMGX2+RE7cQWpEUIcb4QotzUObFkJDejj/HUH4qjP/eQ0gzzKs2f+6Yw==
+
 "@humanwhocodes/config-array@^0.11.8":
   version "0.11.10"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.11.10.tgz#5a3ffe32cc9306365fb3fd572596cd602d5e12d2"
@@ -12130,6 +12135,11 @@ react-style-singleton@^2.2.1:
     get-nonce "^1.0.0"
     invariant "^2.2.4"
     tslib "^2.0.0"
+
+react-tagsinput@^3.20.3:
+  version "3.20.3"
+  resolved "https://registry.yarnpkg.com/react-tagsinput/-/react-tagsinput-3.20.3.tgz#d5790ccf8a387bdaa8c2c8306e62a7276ac581c1"
+  integrity sha512-a+7nZ9gg0SwuoPPmh2AAB98OXYduwi6WgYWgWlPts3mq1ookXGphq9Fe/XLhQcdunkiqJO4WXjWXtHE9UlFyiw==
 
 react@18.2.0:
   version "18.2.0"
