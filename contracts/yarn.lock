@@ -1450,7 +1450,7 @@
   dependencies:
     defer-to-connect "^2.0.1"
 
-"@tableland/evm@^4.3.0":
+"@tableland/evm@^4.2.0":
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/@tableland/evm/-/evm-4.3.0.tgz#ee510c731c2094c9b6fd4300ef81f8716f9a0513"
   integrity sha512-DweAJgho9hwjSF+0My0eB8T8OQ66Pe3IC0878s6GArA6aMDr3OYRk35TW/EgOPTBlVBgqo0S1WBHW+hswG8miw==

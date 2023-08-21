@@ -18,85 +18,72 @@ module.exports = async({ deployments }) => {
     const { deploy } = deployments;
     console.log("Wallet+ Ethereum Address:", wallet.address);
 
-    const EAS_OPTIMISM = "0x1a5650d0ecbca349dd84bafa85790e3e6955eb84";
-    const REGISTRY_OPTIMISM = "0x7b24C7f8AF365B4E308b6acb0A7dfc85d034Cb3f";
-    const THIRDWEB_FACTORY_OPTIMISM =
-        "0xd24b3de085CFd8c54b94feAD08a7962D343E6DE0";
-    const THIRDWEB_SPLITTER_IMPL_OPTIMISM =
-        "0x7e80648EB2071E26937F9D42A513ccf4815fc702";
-    //  Deploy the superAttestationsSchemaFactory
+    // QUERY PREFIX = https://testnets.tableland.network/api/v1/query?statement=
 
-    const SuperResolver = await hre.ethers.getContractFactory("superResolver");
-    const superResolver = await SuperResolver.deploy(
-        EAS_OPTIMISM
+    const Tableland = await hre.ethers.getContractFactory("Tableland");
+    const tableland = await Tableland.deploy();
+    await tableland.deployed();
+
+    console.log("tableland Address=> ", tableland.address);
+
+    const TablelandVerifiers = await hre.ethers.getContractFactory(
+        "TablelandVerifiers"
     );
-    await superResolver.deployed();
+    // const tablelandVerifiers = await TablelandVerifiers.deploy();
+    // await tablelandVerifiers.deployed();
 
-    console.log("superResolver Address=> ", superResolver.address);
+    // console.log("tablelandVerifiers Address=> ", tablelandVerifiers.address);
 
-    const superAttestationsSchemaFactory = await hre.ethers.getContractFactory(
-        "superAttestationsSchemaFactory"
-    );
+    const tablelandAddress = "0x11911136E9bA5579eAC69B2e812db3bC42033726";
+    const tablelandVerifiersAddress =
+        "0x5e62cd517dbf8C90eD4014e541e7d7018b1c69bc";
+    const EAS_GOERLI = "0xF46e44C421780c9d30796469D8905D289c426caE";
+    const REGISTRY_GOERLI = "0x8AE85A65525Eb2DA7eFc654ad9D3F372b23Bfc5e";
+    const splitterIMplementation = "0x4616fC6060D6d6176F49Edc6bb6975197F0D2e4A";
+    const thirdWebFactory = "0x5DBC7B840baa9daBcBe9D2492E45D7244B54A2A0";
+    const Hypercerts = "0x822F17A9A5EeCFd66dBAFf7946a8071C265D1d07";
 
-    const EAS = await hre.ethers.getContractFactory("EAS");
-    const EASInstance = await EAS.attach(
-        EAS_OPTIMISM
-    );
-    const superAttestationsSchema = await superAttestationsSchemaFactory.deploy(
-        REGISTRY_OPTIMISM,
-        superResolver.address,
-        THIRDWEB_FACTORY_OPTIMISM,
-        THIRDWEB_SPLITTER_IMPL_OPTIMISM
-    );
-    await superAttestationsSchema.deployed();
-
-    console.log("Factory Address=> ", superAttestationsSchema.address);
-
-    const superAttestationsSchemaFactoryInstance =
-        await superAttestationsSchemaFactory.attach(
-            superAttestationsSchema.address
-        );
-
-    // OpenAttest & OpenRevoke
-    const tokenGateAddresses = [
-        "0x0000000000000000000000000000000000000000",
-        "0x0000000000000000000000000000000000000001",
-    ];
-    const tokenGateEnum = [0, 0];
-
-    const tokenGateTokenID = [0, 0];
-
-    let params = ["Test attestation schema v3", "description of the testing superSchema", [], 0, "string test, uint256 testUint", 0, 0, true];
-    let tx = await superAttestationsSchemaFactoryInstance.createSuperSchema(
-        tokenGateAddresses,
-        tokenGateEnum,
-        tokenGateTokenID,
-        params, { value: 0 }
-    );
-    let newResolver = await tx.wait();
-    console.log(newResolver.logs[0].address);
-
-    const SuperResolverInstance = await SuperResolver.attach(
-        newResolver.logs[0].address
+    const instance = Tableland.attach(tableland.address);
+    const TablelandVerifiersInstance = TablelandVerifiers.attach(
+        tablelandVerifiersAddress
     );
 
-    // Needs to get changed every time a new superResolver contract is created
-    const schemaUID = "0xccb47cd921cf35823aa221d89f124190943507c688c25bd65611c974262208e5"
-    tx = await EASInstance.attest([schemaUID, [wallet.address, 0, true, "0x0000000000000000000000000000000000000000000000000000000000000000", "0x00", 0]], { value: 0, gasLimit: 1000000 });
-    tx = await tx.wait();
-    console.log("attested")
+    // const VerifiersRegistry = await hre.ethers.getContractFactory(
+    //     "VerifiersRegistry"
+    // );
+    // const verifiersRegistry = await VerifiersRegistry.deploy(
+    //     tablelandVerifiersAddress
+    // );
+    // await verifiersRegistry.deployed();
 
+    // console.log("verifiersRegistry Address=> ", verifiersRegistry.address);
 
-    tx = await superAttestationsSchemaFactoryInstance.mint(schemaUID, 1, { value: 0, gasLimit: 1000000 });
-    tx = await tx.wait();
-    console.log("mint")
-    tx = await superAttestationsSchemaFactoryInstance.hasAccess(schemaUID, wallet.address)
-    console.log(tx)
+    // let transferOwnership = await TablelandVerifiersInstance.transferOwnership(
+    //     verifiersRegistry.address
+    // );
+    // await transferOwnership.wait();
 
-    tx = await SuperResolverInstance.resolveAttestations({ gasLimit: 10000000 });
-    tx = await tx.wait();
-    console.log("split")
+    console.log("transfered to verifiersRegistry");
 
+    const FundTheGoods = await hre.ethers.getContractFactory("FundTheGoods");
+    const fundTheGoods = await FundTheGoods.deploy(
+        "0x02F114CF2C25Ea0029416dD5AEeb3F9Eb69d45f8",
+        Hypercerts,
+        tableland.address,
+        thirdWebFactory,
+        splitterIMplementation,
+        EAS_GOERLI
+    );
 
+    await fundTheGoods.deployed();
+
+    console.log("fundTheGoods Address=> ", fundTheGoods.address);
+
+    transferOwnership = await instance.transferOwnership(fundTheGoods.address);
+    await transferOwnership.wait();
+    console.log("transfered to fundTheGoods");
+
+    const FundTheGoodsAddress = "0xb8AB020E5F82178F1d6E3E5F34a928A29E6bb4AC"
+    const verifiersRegistryAddress = "0x02F114CF2C25Ea0029416dD5AEeb3F9Eb69d45f8"
 
 };

@@ -45,7 +45,7 @@
         "@safe-global/relay-kit": "^1.2.0",
         "@safe-global/safe-core-sdk-types": "^2.2.0",
         "@sismo-core/sismo-connect-solidity": "^0.0.20",
-        "@tableland/evm": "^4.3.0",
+        "@tableland/evm": "^4.2.0",
         "@typechain/hardhat": "^6.1.2",
         "babel-eslint": "^10.1.0",
         "dotenv": "^10.0.0",

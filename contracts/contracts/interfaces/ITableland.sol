@@ -21,4 +21,11 @@ interface ITableland {
         uint256 claimID,
         string[] memory categories
     ) external; 
+
+    function insertCompletedTask(
+        uint256 claimID,
+        address contributor,
+        string memory name,
+        string memory decription
+    )external;
 }

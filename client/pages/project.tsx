@@ -55,7 +55,7 @@ export default function Project() {
     const claimID = router?.query?.id;
     async function fetchHypercerts(claimID: string) {
       const claimTokens = await getClaims(claimID);
-      const metadataUri = claimTokens?.claimTokens[0].claim.uri;
+      const metadataUri = claimTokens?.claimTokens[0]?.claim.uri;
       const metadata = await getData(metadataUri);
       metadata.id = claimID;
       console.log(metadata);

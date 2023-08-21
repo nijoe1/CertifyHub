@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
  * All the data inside the tables are pointing on an IPFS CID.
  */
 
-contract TablelandStorage is Ownable {
+contract Tableland is Ownable {
 
     ITablelandTables private tablelandContract;
     string main;
@@ -36,6 +36,9 @@ contract TablelandStorage is Ownable {
 
     string private constant ATTESTATIONS_TABLE_PREFIX = "hypercert_attestations";
     string private constant ATTESTATIONS_SCHEMA = "claimID text, verifier text, company text, feedbackRange text, comment text";
+
+    string private constant TASK_TABLE_PREFIX = "hypercert_completed_tasks";
+    string private constant TASK_SCHEMA = "claimID text, contributor text, name text, decription text";
     
 
     constructor() {
@@ -50,6 +53,10 @@ contract TablelandStorage is Ownable {
         createStatements.push(
             SQLHelpers.toCreateFromSchema(ATTESTATIONS_SCHEMA, ATTESTATIONS_TABLE_PREFIX)
         );
+        
+        createStatements.push(
+            SQLHelpers.toCreateFromSchema(TASK_SCHEMA, TASK_TABLE_PREFIX)
+        );
 
 
         tableIDs = tablelandContract.create(address(this), createStatements);
@@ -58,17 +65,10 @@ contract TablelandStorage is Ownable {
         tables.push(SQLHelpers.toNameFromId(HYPERCERT_CATEGORIES_TABLE_PREFIX, tableIDs[0]));
         tables.push(SQLHelpers.toNameFromId(HYPERCERT_FUNDINGS_TABLE_PREFIX, tableIDs[1]));
         tables.push(SQLHelpers.toNameFromId(ATTESTATIONS_TABLE_PREFIX, tableIDs[2]));
+        tables.push(SQLHelpers.toNameFromId(TASK_TABLE_PREFIX, tableIDs[3]));
+
     }
 
-    // /*
-    //  * @dev Internal function to perform an update on the main table.
-    //  * @param {stringp[]} set: Array of SET statements for the update.
-    //  * @param {string} filter:Filter condition for the update.
-    //  */
-    // function toUpdate(string[] memory set, string memory filter) public onlyOwner {
-    //     mutate(mainID, SQLHelpers.toUpdate(HYPERCERT_TABLE_PREFIX, mainID, set[0], filter));
-    //     mutate(mainID, SQLHelpers.toUpdate(HYPERCERT_TABLE_PREFIX, mainID, set[1], filter));
-    // }
 
     function insertHypercertInfo(
         uint256 claimID,
@@ -99,6 +99,9 @@ contract TablelandStorage is Ownable {
         uint8 feedbackRange,
         string memory comment
     ) public onlyOwner {
+        if(feedbackRange > 1){
+            feedbackRange --; 
+        }
         mutate(
             tableIDs[2],
             SQLHelpers.toInsert(
@@ -119,6 +122,33 @@ contract TablelandStorage is Ownable {
             )
         );
     }
+
+
+    function insertCompletedTask(
+        uint256 claimID,
+        address contributor,
+        string memory name,
+        string memory decription
+    ) public onlyOwner {
+        mutate(
+            tableIDs[3],
+            SQLHelpers.toInsert(
+                TASK_TABLE_PREFIX,
+                tableIDs[3],
+                "claimID, contributor, name, decription",
+                string.concat(
+                    SQLHelpers.quote((Strings.toString(claimID))),
+                    ",",
+                    SQLHelpers.quote(Strings.toHexString(contributor)),
+                    ",",
+                    SQLHelpers.quote(name),
+                    ",",
+                    SQLHelpers.quote(decription)
+                )
+            )
+        );
+    }
+    
 
     function insertFunding(
         uint256 claimID,

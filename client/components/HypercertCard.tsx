@@ -6,35 +6,47 @@ import {
   CardFooter,
   Typography,
   Button,
+  Rating,
 } from "@material-tailwind/react";
 import { useRouter } from 'next/router';
-
 
 export default function HypercertCard({ hypercert, onDetailsClick }) {
   const { id, name, description, image, external_url, hypercert: hc } = hypercert;
   const router = useRouter();
 
+  const maxDescriptionLength = 40; // Maximum description length
+
+  const truncatedDescription =
+    description.length > maxDescriptionLength
+      ? `${description.substring(0, maxDescriptionLength)}...`
+      : description;
+
   const handleDetailsClick = () => {
     // Redirect to the Hypercert page with the Hypercert ID as a query parameter
     router.push(`/project?id=${id}`);
   };
+
   return (
-    <Card className="mt-6 w-96">
-      <div className="h-110 mt-6">
-        <img
-          src={image}
-          alt="card-image"
-          className="object-cover h-full w-full"
-        />
-            </div>
+    <Card className="mt-6 w-96 mx-auto">
+      <img
+        src={image}
+        alt="card-image"
+        className="object-cover mt-4 h-full w-full"
+      />
       <CardBody>
+        <strong>Name:</strong>
         <Typography variant="h5" color="blue-gray" className="mb-2">
           {name}
         </Typography>
+        <strong>Description:</strong>
         <Typography color="gray">
-          {description}
+          {truncatedDescription}
         </Typography>
-        <div className="mt-4">
+        <div className="mt-2 flex items-center">
+          <strong className="mr-2">Rating:</strong>
+          <Rating value={4} size="sm" readonly />
+        </div>
+        <div className="mt-2">
           <Typography>
             <strong>Contributors:</strong>
           </Typography>
@@ -55,13 +67,13 @@ export default function HypercertCard({ hypercert, onDetailsClick }) {
           href={external_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="block text-blue-600 hover:underline mt-2"
+          className="block text-blue-600 hover:underline mt-0"
         >
           Learn More
         </a>
         <Button
           onClick={handleDetailsClick}
-          className="mt-4"
+          className="mt-2 w-full"
           color="blue"
           ripple="light"
         >

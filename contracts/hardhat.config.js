@@ -32,9 +32,10 @@ module.exports = {
         },
     },
     etherscan: {
-        // apiKey: "JYMKRTHHFUSX4X11I1NQRNW6X7K2FJFJUU",
+        apiKey: "KNVT7KRT9B15Z5UTXZT8TG8HNMIJXWXRMY",
         // apiKey: "293U4XQC3RSYF322F6B2J6EY6EWBB2DUWW",
-        apiKey: "MPZZXTM8AFBE965THC1C7JPUA4BUA348KD",
+        // apiKey: "MPZZXTM8AFBE965THC1C7JPUA4BUA348KD",
+        customChains: [],
     },
     paths: {
         sources: "./contracts",

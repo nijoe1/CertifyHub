@@ -6,42 +6,56 @@ const HypercertProfile = ({ hypercert }) => {
   const { name, description, image, contributors, external_url, hypercert: hc } = hypercert;
 
   return (
-    <div className="flex flex-col items-center py-8">
-      {/* Image */}
-      <img src={image} alt="Hypercert Image" className="w-70 h-48  mb-4" />
+    <div className="grid place-items-center py-8 overflow-y-auto">
+      <div className="w-3/4 max-w-xl text-center">
+        {/* Image */}
+        <img src={image} alt="Hypercert Image" className="w-full h-full mb-4" />
 
-      {/* Hypercert Name */}
-      <h2 className="text-2xl font-semibold text-blue-600 mb-2">{name}</h2>
+        {/* Hypercert Name */}
+        <h2 className="text-2xl font-semibold text-blue-600 mb-2">{name}</h2>
 
-      {/* Hypercert Description */}
-      <p className="text-gray-800 mb-4 text-center">{description}</p>
+        {/* Hypercert Description */}
+        <div className="max-h-48 overflow-y-auto">
+          <p className="text-gray-800 mx-auto">{description}</p>
+        </div>
 
-      {/* Contributors */}
-      <div className="grid gap-2 mb-4">
-        {hc.contributors.value.map((contributor, index) => (
-          <EthereumAddress key={index} address={contributor} />
-        ))}
+        {/* Contributors */}
+        <div className="grid gap-2 mt-4">
+          {hc.contributors.value.slice(0, 4).map((contributor, index) => (
+            
+            <div key={index} className="flex justify-center">
+              <span className="text-gray-500 mr-1">Founder:</span>
+              <EthereumAddress address={contributor} />
+            </div>
+          ))}
+          {hc.contributors.value.length > 4 && (
+            <div className="flex items-center">
+              <span className="text-gray-500 mr-1">...</span>
+              <span className="text-gray-500">(and more)</span>
+            </div>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex justify-center gap-4 mt-4">
+          <Button color="blue" ripple="light" onClick={() => console.log("Provide Feedback clicked")}>
+            Provide Feedback
+          </Button>
+          <Button color="green" ripple="light" onClick={() => console.log("Fund Project clicked")}>
+            Fund Project!
+          </Button>
+        </div>
+
+        {/* External URL */}
+        <a
+          href={external_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block text-blue-600 hover:underline mt-4"
+        >
+          Learn More
+        </a>
       </div>
-
-      {/* Action Buttons */}
-      <div className="flex gap-4">
-        <Button color="blue" ripple="light" onClick={() => console.log("Provide Feedback clicked")}>
-          Provide Feedback
-        </Button>
-        <Button color="green" ripple="light" onClick={() => console.log("Fund Project clicked")}>
-          Fund Project!
-        </Button>
-      </div>
-
-      {/* External URL */}
-      <a
-        href={external_url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block text-blue-600 hover:underline mt-2"
-      >
-        Learn More
-      </a>
     </div>
   );
 };

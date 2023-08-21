@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import { Attestation } from "../EAS/Common.sol";
+import { Attestation } from "./Common.sol";
 
 /// @title ISchemaResolver
 /// @notice The interface of an optional schema resolver.
