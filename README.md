@@ -1,1 +1,1 @@
-# fundingTheCommonsHackathon
+# CertifyHub
