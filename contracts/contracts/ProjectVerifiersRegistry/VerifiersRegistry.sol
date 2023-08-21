@@ -21,7 +21,7 @@ contract VerifiersRegistry is ERC1155, AccessControl {
     indexerContract = _indexerContract;
   }
 
-  function registerVerifier(string memory company, address admin, address[] memory verifiers) external onlyRole(REGISTRAR_ROLE){
+  function registerVerifiers(string memory company, address admin, address[] memory verifiers) external onlyRole(REGISTRAR_ROLE){
     
     bytes32 VERIFIER_ROLE = keccak256(abi.encode(company));
     
@@ -33,10 +33,25 @@ contract VerifiersRegistry is ERC1155, AccessControl {
     for(uint i = 0; i < verifiers.length; i++){
       _mint(verifiers[i], uint256(VERIFIER_ROLE), 1, "");
     }
-    
     indexerContract.insertCompany(company, verifiers, admin);
   }
 
+  function addVerifiers(string memory company,address[] memory verifiers) external onlyRole(getCompanyAdmin(company)){
+    bytes32 VERIFIER_ROLE = keccak256(abi.encode(company));
+    for(uint i = 0; i < verifiers.length; i++){
+      _mint(verifiers[i], uint256(VERIFIER_ROLE), 1, "");
+    }
+    indexerContract.insertCompany(company, verifiers, msg.sender);
+  }
+
+  function removeVerifiers(string memory company,address[] memory verifiers) external onlyRole(getCompanyAdmin(company)){
+    bytes32 VERIFIER_ROLE = keccak256(abi.encode(company));
+    for(uint i = 0; i < verifiers.length; i++){
+      _mint(verifiers[i], uint256(VERIFIER_ROLE), 1, "");
+    }
+    indexerContract.insertCompany(company, verifiers, msg.sender);
+  }
+  
   function _beforeTokenTransfer(
       address  /* operator */,
       address from,
@@ -56,6 +71,10 @@ contract VerifiersRegistry is ERC1155, AccessControl {
   ) public view virtual override(AccessControl, ERC1155) returns (bool) {
       return
           interfaceId == type(AccessControl).interfaceId;
+  }
+
+  function getCompanyAdmin(string memory company)internal view returns(bytes32){
+    return keccak256(abi.encode(company,msg.sender));
   }
 
 }

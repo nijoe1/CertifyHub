@@ -10,41 +10,9 @@ import {
   Tab,
   TabPanel,
 } from "@material-tailwind/react";
-import {
-  Square3Stack3DIcon,
-  UserCircleIcon,
-  Cog6ToothIcon,
-} from "@heroicons/react/24/solid";
-import { getData } from "../lib/operator/index";
-import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
+import {  UserCircleIcon } from "@heroicons/react/outline";
+import { getData, getClaims } from "../lib/operator/index";
 
-const thegraph = new ApolloClient({
-  uri: "https://api.thegraph.com/subgraphs/name/hypercerts-admin/hypercerts-testnet",
-  cache: new InMemoryCache(),
-});
-
-async function getClaims(claimId: string) {
-  let query = gql`{
-    claimTokens (where: { claim: "${claimId}" }) {
-      id
-      owner
-      tokenID
-      units
-      claim {
-        id
-        uri
-        owner
-      } 
-    }
-  }`;
-
-  const response = await thegraph.query({
-    query,
-    fetchPolicy: "no-cache",
-  });
-  console.log(response.data);
-  return response.data;
-}
 
 export default function Project() {
   const router = useRouter();
@@ -72,7 +40,7 @@ export default function Project() {
     {
       label: "Fundings",
       value: "fundings",
-      icon: Square3Stack3DIcon,
+      icon: UserCircleIcon,
       desc: "Funding information and details.",
     },
     {
@@ -84,7 +52,7 @@ export default function Project() {
     {
       label: "Feedback",
       value: "feedback",
-      icon: Cog6ToothIcon,
+      icon: UserCircleIcon,
       desc: "Feedback and comments related to the hypercert.",
     },
   ];

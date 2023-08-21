@@ -224,20 +224,44 @@ contract FundTheGoods is SchemaResolver {
         uint256[] memory ownersShares = new uint256[](owners.length);
         address owner;
         uint256 ownerShares;
+        uint256 shareholdersNum;
 
         for (uint256 i = 0; i < owners.length; i++) {
             owner = owners[i];
             ownerShares = project.ownersShares[owner];
-            ownersShares[i] = ownerShares;
+            if (ownerShares > 0) {
+                ownersShares[i] = ownerShares;
+                shareholdersNum++;
+            }
         }
-        // Calculate the remaining shares needed to reach a multiple of 100
-        uint256 remainingShares = (1000 - (project.totalShares % 1000)) % 1000;
 
-        // Distribute one share to each address until no remaining shares are left
+        require(shareholdersNum > 0);
+
+        uint256 totalShares = project.totalShares;
+        uint256 modBy;
+        if (totalShares <= 100) {
+            modBy = 100;
+        } else if (totalShares <= 1000) {
+            modBy = 1000;
+        } else if (totalShares <= 10000) {
+            modBy = 10000;
+        } else {
+            modBy = 100000;
+        }
+
+        // Calculate the remaining shares needed to reach a multiple of modBy
+        uint256 remainingShares = (modBy - (totalShares % modBy)) % modBy;
+
         uint256 currentIndex = 0;
         while (remainingShares > 0) {
-            ownersShares[currentIndex]++;
-            remainingShares--;
+            uint256 highestStep = remainingShares / shareholdersNum;
+            if (highestStep == 0) {
+                highestStep = 1;
+            }
+            if (ownersShares[currentIndex] > 0) {
+                ownersShares[currentIndex] += highestStep;
+                remainingShares -= highestStep;
+            }
             currentIndex = (currentIndex + 1) % ownersShares.length;
         }
 

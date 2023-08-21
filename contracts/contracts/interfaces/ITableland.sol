@@ -27,5 +27,5 @@ interface ITableland {
         address contributor,
         string memory name,
         string memory decription
-    )external;
+    ) external;
 }

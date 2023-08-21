@@ -4,18 +4,24 @@ import Footer from "@/components/Footer";
 import Tooltip from "@/components/Tooltip";
 import HypercertCard from "@/components/HypercertCard";
 import ChosenCategoriesBox from "@/components/ChosenCategoriesBox";
-import { getData, getClaims } from "../lib/operator/index";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { getData, ,getUserHypercerts } from "../lib/operator/index";
+import { useContractWrite, usePrepareContractWrite ,useAccount} from "wagmi";
 import { CONTRACTS } from "@/constants/contracts";
+import { Input, Select, Option } from "@material-tailwind/react";
 
 const RegisterPage = () => {
   const [hypercertID, setHypercertID] = useState("");
   const [importedHypercert, setImportedHypercert] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedProject, setSelectedProject] = useState("");
+
   const [registeredCategories, setRegisteredCategories] = useState([]);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [fractionIDs, setFractionIDs] = useState([]);
   const [error, setError] = useState(null); // Add state for error message
+  const {address} = useAccount()
+  const [names, setNames] = useState([]);
+  const [metadata, setMetadata] = useState([]);
 
   const { config } = usePrepareContractWrite({
     address: CONTRACTS.fundTheCommons[5].contract,
@@ -25,33 +31,59 @@ const RegisterPage = () => {
   });
   const { write } = useContractWrite(config);
 
+  const handleHypercertChange = (value) => {
+    setSelectedProject(value);
+    setHypercertID(hypercertID)
+  };
+
   useEffect(() => {
-    async function fetchHypercert(claimID) {
-      let id =
-        "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-" + claimID.toString();
-      const claimTokens = await getClaims(id);
-      let fractions = [];
-      if (claimTokens.claimTokens.length > 0) {
-        for (const fraction of claimTokens.claimTokens) {
-          if (fraction?.tokenID) {
-            fractions.push(fraction?.tokenID);
-          }
-        }
-        setFractionIDs(fractions as []);
-        const metadataUri = claimTokens?.claimTokens[0].claim.uri;
-        const metadata = await getData(metadataUri);
-        metadata.hypercert.categories = registeredCategories;
-        metadata.id = id;
-        console.log(metadata);
-        if (metadata) {
-          setImportedHypercert(metadata);
-          console.log(metadata);
-          return;
-        }
-      } else {
-        setError("Non-existent Hypercert or error occurred.");
+    async function fetchHypercert() {
+
+      // let id =
+      //   "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-" + claimID.toString();
+      // const claimTokens = await getClaims(id);
+      // let fractions = [];
+      // if (claimTokens.claimTokens.length > 0) {
+      //   for (const fraction of claimTokens.claimTokens) {
+      //     if (fraction?.tokenID) {
+      //       fractions.push(fraction?.tokenID);
+      //     }
+      //   }
+      //   setFractionIDs(fractions as []);
+      //   const metadataUri = claimTokens?.claimTokens[0].claim.uri;
+      //   const metadata = await getData(metadataUri);
+      //   metadata.hypercert.categories = registeredCategories;
+      //   metadata.id = id;
+      //   console.log(metadata);
+      //   if (metadata) {
+      //     setImportedHypercert(metadata);
+      //     console.log(metadata);
+      //     return;
+      //   }
+      // } else {
+      //   setError("Non-existent Hypercert or error occurred.");
+      // }
+      let tokens = []
+      let metadataArray = []
+      const hypercertIdsData = await getUserHypercerts(address);
+
+      for(const hypercertID of hypercertIdsData.claims){
+          console.log(hypercertID.tokenID)
+          tokens.push(hypercertID.tokenID)
+          const data = await getData(hypercertID?.uri);
+          metadataArray.push(data)
       }
+
+      setNames(names)
+      // @ts-ignore
+      setMetadata(metadataArray)
+      // const metadata = await getData(hypercertIdsData?.metadataUri);
+      //         metadata.hypercert.categories = registeredCategories;
+
+      // console.log(metadata)
+
     }
+    fetchHypercert()
 
     if (hypercertID) {
       fetchHypercert(hypercertID);
@@ -61,7 +93,7 @@ const RegisterPage = () => {
       setShowCategoryForm(false); // Disable the categories view when no claimID is provided
       setError(null); // Clear any previous error
     }
-  }, [hypercertID, registeredCategories]);
+  }, [hypercertID, registeredCategories,address]);
 
   const handleAddCategory = () => {
     if (selectedCategory && !registeredCategories.includes(selectedCategory)) {
@@ -69,6 +101,12 @@ const RegisterPage = () => {
       setSelectedCategory("");
     }
   };
+
+  let hypercertsOptions = [];
+
+  for (const meta of metadata) {
+    hypercertsOptions.push({ value: meta.name, label: meta.name });
+  }
 
   return (
     <>
@@ -80,13 +118,20 @@ const RegisterPage = () => {
           {/* Import Hypercert Form */}
           <div className="mb-4 flex items-center">
             {/* Placeholder for Import Hypercert Form elements */}
-            <input
-              type="text"
-              placeholder="Enter Hypercert ID"
-              className="border p-2 mr-2"
-              value={hypercertID}
-              onChange={(e) => setHypercertID(e.target.value)}
-            />
+            <Select
+              value={selectedProject}
+              onChange={handleHypercertChange()}
+              className="w-full md:w-96 py-5"
+              optionClasses={{
+                hover: "cursor-pointer", // Add cursor pointer on hover
+              }}
+            >
+              {hypercertsOptions.map((option) => (
+                <Option key={option.value} value={option.value}className="hover:bg-blue-200 text-center">
+                  {option.label}
+                </Option>
+              ))}
+            </Select>
             <button
               className="bg-blue-500 text-white px-3 py-2 rounded"
               onClick={() => setHypercertID(hypercertID)}

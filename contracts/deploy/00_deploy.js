@@ -48,6 +48,12 @@ module.exports = async({ deployments }) => {
         tablelandVerifiersAddress
     );
 
+
+
+
+
+
+
     // const VerifiersRegistry = await hre.ethers.getContractFactory(
     //     "VerifiersRegistry"
     // );

@@ -74,20 +74,36 @@ contract Tableland is Ownable {
         uint256 claimID,
         string[] memory categories
     ) public onlyOwner {
-
-        for(uint i = 0; i < categories.length; i++){
-            mutate(
-                tableIDs[0],
-                SQLHelpers.toInsert(
-                    HYPERCERT_CATEGORIES_TABLE_PREFIX,
+        if(categories.length > 0) {
+            for(uint i = 0; i < categories.length; i++){
+                mutate(
                     tableIDs[0],
-                    "claimID, category",
-                    string.concat(
-                        SQLHelpers.quote(Strings.toString(claimID)),
-                        ",",
-                        SQLHelpers.quote(categories[i])
+                    SQLHelpers.toInsert(
+                        HYPERCERT_CATEGORIES_TABLE_PREFIX,
+                        tableIDs[0],
+                        "claimID, category",
+                        string.concat(
+                            SQLHelpers.quote(Strings.toString(claimID)),
+                            ",",
+                            SQLHelpers.quote(categories[i])
+                        )
                     )
-                )
+                );
+            }
+        }
+        else{
+            mutate(
+                    tableIDs[0],
+                    SQLHelpers.toInsert(
+                        HYPERCERT_CATEGORIES_TABLE_PREFIX,
+                        tableIDs[0],
+                        "claimID, category",
+                        string.concat(
+                            SQLHelpers.quote(Strings.toString(claimID)),
+                            ",",
+                            SQLHelpers.quote("")
+                        )
+                    )
             );
         }
     }

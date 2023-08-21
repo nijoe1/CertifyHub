@@ -1,5 +1,5 @@
-import React from 'react';
-import EthereumAddress from './EthereumAddress';
+import React from "react";
+import EthereumAddress from "./EthereumAddress";
 import {
   Card,
   CardBody,
@@ -8,13 +8,16 @@ import {
   Button,
   Rating,
 } from "@material-tailwind/react";
-import { useRouter } from 'next/router';
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import { useRouter } from "next/router";
 
 export default function HypercertCard({ hypercert, onDetailsClick }) {
   const { id, name, description, image, external_url, hypercert: hc } = hypercert;
   const router = useRouter();
 
-  const maxDescriptionLength = 40; // Maximum description length
+  const maxDescriptionLength = 40;
 
   const truncatedDescription =
     description.length > maxDescriptionLength
@@ -22,9 +25,23 @@ export default function HypercertCard({ hypercert, onDetailsClick }) {
       : description;
 
   const handleDetailsClick = () => {
-    // Redirect to the Hypercert page with the Hypercert ID as a query parameter
     router.push(`/project?id=${id}`);
   };
+
+  const badgeWidth = 100;
+  const badgesPerSlide = 3;
+
+  const sliderSettings = {
+    dots: Math.ceil(hc.contributors.value.length / badgesPerSlide),
+    infinite: false,
+    speed: 300,
+    slidesToShow: 1,
+    slidesToScroll: 2,
+    variableWidth: true,
+  };
+
+  const uniqueCategories = Array.from(new Set(hc.categories.map((c) => c )));
+  const uniqueContributors = Array.from(new Set(hc.contributors.value));
 
   return (
     <Card className="mt-6 w-96 mx-auto">
@@ -39,27 +56,47 @@ export default function HypercertCard({ hypercert, onDetailsClick }) {
           {name}
         </Typography>
         <strong>Description:</strong>
-        <Typography color="gray">
-          {truncatedDescription}
-        </Typography>
+        <Typography color="gray">{truncatedDescription}</Typography>
         <div className="mt-2 flex items-center">
           <strong className="mr-2">Rating:</strong>
-          <Rating value={4} size="sm" readonly />
+          <Rating value={4} size="md" readonly />
         </div>
         <div className="mt-2">
           <Typography>
             <strong>Contributors:</strong>
           </Typography>
-          <ul className="list-disc ml-6">
-            {hc.contributors.value.map((contributor, index) => (
-              <li key={index}>
-                <EthereumAddress address={contributor} />
-              </li>
+          <Slider {...sliderSettings}>
+            {uniqueContributors.map((contributor, index) => (
+              <EthereumAddress
+                key={index}
+                address={contributor}
+                className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
+                style={{
+                  width: `${badgeWidth}px`,
+                  marginRight: "8px", // Add space between badges
+                }}
+              />
             ))}
-          </ul>
+          </Slider>
+        </div>
+        <div className="mt-2">
           <Typography>
-            <strong>Rights:</strong> {hc.rights.display_value}
+            <strong>Categories:</strong>
           </Typography>
+          <Slider {...sliderSettings}>
+            {uniqueCategories.map((category, index) => (
+              <span
+                key={index}
+                className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
+                style={{
+                  width: `${badgeWidth}px`,
+                  marginRight: "8px", // Add space between badges
+                }}
+              >
+                {category as string}
+              </span>
+            ))}
+          </Slider>
         </div>
       </CardBody>
       <CardFooter className="pt-0">

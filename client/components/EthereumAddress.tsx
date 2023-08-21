@@ -14,7 +14,7 @@ const EthereumAddress = ({ address }) => {
 
   return (
     <span
-      className={`inline-block bg-gray-300 text-gray-800 px-2 py-1 rounded mr-2 mb-2 cursor-pointer ${
+      className={`bg-blue-500 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap ${
         copied ? 'bg-green-500' : ''
       }`}
       onClick={copyToClipboard}
