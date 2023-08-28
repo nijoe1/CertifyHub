@@ -18,7 +18,7 @@ export const ETH_CHAINS = [
 export const WALLET_CONNECT_PROJECT_ID =
 	process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '';
 
-export const SITE_NAME = 'FundTheCommons';
+export const SITE_NAME = 'C3RTIFYHUB';
 export const SITE_DESCRIPTION =
 	'The Ultimate Platform for investors and startUps completly decentralized';
 export const SITE_URL = 'https://FundTheCommons.vercel.app';

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Navbar } from '@/components/layout';
 import Footer from '@/components/Footer';
+import Link from "next/link"; // Import the Link component
+
 // Sample data for the company and its events
 const companyData = {
   companyName: 'Company XYZ',
@@ -56,7 +58,9 @@ function CompanyPage() {
         <h2 className="text-xl font-semibold mb-4">Events</h2>
         {eventsData.map((event) => (
           <div key={event.eventID} className="bg-blue-100 p-4 rounded mb-4">
-            <h3 className="text-md font-semibold mb-1">{event.eventID}</h3>
+             <Link href={`/event`}>
+                <h3 className="text-md font-semibold mb-1">{event.eventID}</h3>
+                  </Link>
             <p className="text-sm text-gray-600 mb-2">
               Start Time: {event.startTime} - End Time: {event.endTime}
             </p>

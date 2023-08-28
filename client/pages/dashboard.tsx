@@ -66,10 +66,11 @@ const DashboardPage = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
+    <Navbar />
 
-      <div className="container mx-auto py-8  justify-center">
-        <h1 className="text-2xl font-semibold mb-4">Dashboard</h1>
+    <div className="flex-grow flex items-center justify-center"> {/* Center content vertically and horizontally */}
+      <div className="container mx-auto py-8 max-w-[40rem]">
+        <h1 className="items-center justify-center text-2xl font-semibold mb-4">Dashboard</h1>
 
         <Tabs value="my-projects" className="max-w-[40rem]">
           <TabsHeader
@@ -152,10 +153,11 @@ const DashboardPage = () => {
           )}
         </Tabs>
       </div>
-
+      </div>
       <div className="flex-grow"></div>
       <Footer />
-    </div>
+    </div>    
+
   );
 };
 
