@@ -19,13 +19,13 @@ interface ITableland {
 
     function insertHypercertInfo(
         uint256 claimID,
-        string[] memory categories
+        string[] memory categories,
+        string[] memory events
     ) external; 
 
     function insertCompletedTask(
         uint256 claimID,
         address contributor,
-        string memory name,
-        string memory decription
+        string memory cid
     ) external;
 }

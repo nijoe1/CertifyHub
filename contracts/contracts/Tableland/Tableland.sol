@@ -15,12 +15,6 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 contract Tableland is Ownable {
 
     ITablelandTables private tablelandContract;
-    string main;
-    string attribute;
-    string contribution;
-    uint256 mainID;
-    uint256 attributeID;
-    uint256 contributionID;
 
     string[] private createStatements;
     string[] public tables;
@@ -31,6 +25,9 @@ contract Tableland is Ownable {
     string private constant HYPERCERT_CATEGORIES_TABLE_PREFIX = "hypercert_categories";
     string private constant HYPERCERT_CATEGORIES_SCHEMA = "claimID text, category text";
 
+    string private constant HYPERCERT_EVENTS_TABLE_PREFIX = "hypercert_events";
+    string private constant HYPERCERT_EVENTS_SCHEMA = "claimID text, eventID text";
+
     string private constant HYPERCERT_FUNDINGS_TABLE_PREFIX = "hypercert_fundings";
     string private constant HYPERCERT_FUNDINGS_SCHEMA = "claimID text, funder text, fundAmount text";
 
@@ -38,7 +35,7 @@ contract Tableland is Ownable {
     string private constant ATTESTATIONS_SCHEMA = "claimID text, verifier text, company text, feedbackRange text, comment text";
 
     string private constant TASK_TABLE_PREFIX = "hypercert_completed_tasks";
-    string private constant TASK_SCHEMA = "claimID text, contributor text, name text, decription text";
+    string private constant TASK_SCHEMA = "claimID text, contributor text, cid text";
     
 
     constructor() {
@@ -58,6 +55,10 @@ contract Tableland is Ownable {
             SQLHelpers.toCreateFromSchema(TASK_SCHEMA, TASK_TABLE_PREFIX)
         );
 
+        // createStatements.push(
+        //     SQLHelpers.toCreateFromSchema(HYPERCERT_EVENTS_SCHEMA, HYPERCERT_EVENTS_TABLE_PREFIX)
+        // );
+
 
         tableIDs = tablelandContract.create(address(this), createStatements);
 
@@ -66,13 +67,15 @@ contract Tableland is Ownable {
         tables.push(SQLHelpers.toNameFromId(HYPERCERT_FUNDINGS_TABLE_PREFIX, tableIDs[1]));
         tables.push(SQLHelpers.toNameFromId(ATTESTATIONS_TABLE_PREFIX, tableIDs[2]));
         tables.push(SQLHelpers.toNameFromId(TASK_TABLE_PREFIX, tableIDs[3]));
+        // tables.push(SQLHelpers.toNameFromId(HYPERCERT_EVENTS_TABLE_PREFIX, tableIDs[4]));
 
     }
 
 
     function insertHypercertInfo(
         uint256 claimID,
-        string[] memory categories
+        string[] memory categories,
+        string[] memory events
     ) public onlyOwner {
         if(categories.length > 0) {
             for(uint i = 0; i < categories.length; i++){
@@ -102,6 +105,21 @@ contract Tableland is Ownable {
                             SQLHelpers.quote(Strings.toString(claimID)),
                             ",",
                             SQLHelpers.quote("")
+                        )
+                    )
+            );
+        }
+        for(uint256 i = 0; i < events.length; i++){
+            mutate(
+                    tableIDs[4],
+                    SQLHelpers.toInsert(
+                        HYPERCERT_EVENTS_TABLE_PREFIX,
+                        tableIDs[4],
+                        "claimID, eventID",
+                        string.concat(
+                            SQLHelpers.quote(Strings.toString(claimID)),
+                            ",",
+                            SQLHelpers.quote(events[i])
                         )
                     )
             );
@@ -143,23 +161,20 @@ contract Tableland is Ownable {
     function insertCompletedTask(
         uint256 claimID,
         address contributor,
-        string memory name,
-        string memory decription
+        string memory cid
     ) public onlyOwner {
         mutate(
             tableIDs[3],
             SQLHelpers.toInsert(
                 TASK_TABLE_PREFIX,
                 tableIDs[3],
-                "claimID, contributor, name, decription",
+                "claimID, contributor, cid",
                 string.concat(
                     SQLHelpers.quote((Strings.toString(claimID))),
                     ",",
                     SQLHelpers.quote(Strings.toHexString(contributor)),
                     ",",
-                    SQLHelpers.quote(name),
-                    ",",
-                    SQLHelpers.quote(decription)
+                    SQLHelpers.quote(cid)
                 )
             )
         );

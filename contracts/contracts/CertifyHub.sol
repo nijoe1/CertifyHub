@@ -10,10 +10,10 @@ import { IEAS, Attestation } from "./interfaces/IEAS.sol";
 import { ITableland } from "./interfaces/ITableland.sol";
 
 /**
- * @title FundTheGoods
+ * @title CertifyHub
  * @notice A schema resolver that facilitates attestation resolution and incentives distribution.
  */
-contract FundTheGoods is SchemaResolver {
+contract CertifyHub is SchemaResolver {
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableSet for EnumerableSet.UintSet;
 
@@ -64,7 +64,8 @@ contract FundTheGoods is SchemaResolver {
     function registerHypercertProject(
         uint256 claimID,
         uint256[] memory fractionClaimIDs,
-        string[] memory categories
+        string[] memory categories,
+        string[] memory events
     ) external {
         require(!Projects.contains(claimID), "already registered");
         require(isBaseType(claimID), "not base type");
@@ -91,7 +92,7 @@ contract FundTheGoods is SchemaResolver {
 
         Projects.add(claimID);
         project.totalShares = totalShares;
-        indexerContract.insertHypercertInfo(claimID, categories);
+        indexerContract.insertHypercertInfo(claimID, categories, events);
     }
 
     /**
@@ -171,20 +172,21 @@ contract FundTheGoods is SchemaResolver {
         Attestation calldata attestation,
         uint256 value
     ) internal override returns (bool) {
-        (string memory comment, uint256 projectID, uint8 rangeFeedback, string memory verifierFrom) =
-            abi.decode(attestation.data, (string, uint256, uint8, string));
+        (string memory cid, uint256 projectID, uint8 rangeFeedback, bytes32 eventID) =
+            abi.decode(attestation.data, (string, uint256, uint8, bytes32));
+        string memory ID = bytes32ToString(eventID);
         if (!Projects.contains(projectID)) return false;
         if (rangeFeedback > 6) return false;
 
         if (rangeFeedback == 0 && value > 0) {
             // ADD FUNDING
-            indexerContract.insertFunding(projectID, verifierFrom, value);
+            indexerContract.insertFunding(projectID, ID, value);
             projectInfo[projectID].fundingPool += value;
             return true;
         } else if (rangeFeedback == 1 && projectInfo[projectID].owners.contains(attestation.attester)) {
-            indexerContract.insertCompletedTask(projectID, attestation.attester, verifierFrom, comment);
-        } else if (tokenGatedProjectVerifiers.balanceOf(attestation.attester, uint256(keccak256(abi.encode(verifierFrom)))) > 0) {
-            indexerContract.insertAttestation(projectID, attestation.attester, verifierFrom, rangeFeedback, comment);
+            indexerContract.insertCompletedTask(projectID, attestation.attester, cid);
+        } else if (tokenGatedProjectVerifiers.balanceOf(attestation.attester, uint256((eventID))) > 0 || eventID == bytes32(0)) {
+            indexerContract.insertAttestation(projectID, attestation.attester, ID, rangeFeedback, cid);
             return true;
         }
         return false;
@@ -286,6 +288,24 @@ contract FundTheGoods is SchemaResolver {
         Address.functionCall(splitterInstance, abi.encodeWithSignature("distribute()"));
 
         project.fundingPool = 0;
+    }
+
+    function bytes32ToString(bytes32 data) public pure returns (string memory) {
+        // Fixed buffer size for hexadecimal convertion
+        bytes memory converted = new bytes(data.length * 2);
+
+        bytes memory _base = "0123456789abcdef";
+
+        for (uint256 i = 0; i < data.length; i++) {
+            converted[i * 2] = _base[uint8(data[i]) / _base.length];
+            converted[i * 2 + 1] = _base[uint8(data[i]) % _base.length];
+        }
+
+        return string(abi.encodePacked("0x", converted));
+    }
+
+    function getCurrentTime() public view returns(uint256) {
+        return block.timestamp;
     }
 
 }

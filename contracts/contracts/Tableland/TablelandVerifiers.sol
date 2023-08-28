@@ -15,21 +15,21 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 contract TablelandVerifiers is Ownable {
 
     ITablelandTables private tablelandContract;
-    string main;
-    string attribute;
-    string contribution;
-    uint256 mainID;
-    uint256 attributeID;
-    uint256 contributionID;
 
     string[] private createStatements;
     string[] public tables;
     uint256[] private tableIDs;
 
     string private baseURIString;
+
+    string private constant COMPANY_TABLE_PREFIX = "company";
+    string private constant COMPANY_SCHEMA = "company text, image text, description text, admin text";
         
-    string private constant COMPANY_TABLE_PREFIX = "verifier_company";
-    string private constant COMPANY_SCHEMA = "company text, verifier text, isAdmin text"; 
+    string private constant EVENT_TABLE_PREFIX = "event";
+    string private constant EVENT_SCHEMA = "company text, eventID text, cid text, startTime text, endTime text"; 
+
+    string private constant EVENT_VERIFIERS_TABLE_PREFIX = "event_verifiers";
+    string private constant EVENT_VERIFIERS_SCHEMA = "eventID text, verifier text"; 
 
     constructor() {
         tablelandContract = TablelandDeployments.get();
@@ -38,15 +38,26 @@ contract TablelandVerifiers is Ownable {
             SQLHelpers.toCreateFromSchema(COMPANY_SCHEMA, COMPANY_TABLE_PREFIX)
         );
 
+        createStatements.push(
+            SQLHelpers.toCreateFromSchema(EVENT_SCHEMA, EVENT_TABLE_PREFIX)
+        );
+
+        createStatements.push(
+            SQLHelpers.toCreateFromSchema(EVENT_VERIFIERS_SCHEMA, EVENT_VERIFIERS_TABLE_PREFIX)
+        );
+
         tableIDs = tablelandContract.create(address(this), createStatements);
    
         tables.push(SQLHelpers.toNameFromId(COMPANY_TABLE_PREFIX, tableIDs[0]));
+        tables.push(SQLHelpers.toNameFromId(EVENT_TABLE_PREFIX, tableIDs[1]));
+        tables.push(SQLHelpers.toNameFromId(EVENT_VERIFIERS_TABLE_PREFIX, tableIDs[2]));
     }
 
 
     function insertCompany(
         string memory company,
-        address[] memory verifiers,
+        string memory image,
+        string memory description,
         address admin
     ) public onlyOwner {
         mutate(
@@ -54,34 +65,78 @@ contract TablelandVerifiers is Ownable {
                 SQLHelpers.toInsert(
                     COMPANY_TABLE_PREFIX,
                     tableIDs[0],
-                    "company, verifier, isAdmin",
+                    "company, image, description, admin",
                     string.concat(
                         SQLHelpers.quote(company),
                         ",",
-                        SQLHelpers.quote(Strings.toHexString(admin)),
+                        SQLHelpers.quote(image),
                         ",",
-                        SQLHelpers.quote("true")
+                        SQLHelpers.quote(description),
+                        ",",                        
+                        SQLHelpers.quote(Strings.toHexString(admin))
                     )
                 )
             );
+    }
 
-        for(uint i = 0; i < verifiers.length; i++){
-            mutate(
-                tableIDs[0],
+
+    function insertEvent(
+        string memory company,
+        string memory cid,
+        bytes32 eventId,
+        uint256 endTime,
+        address[] memory eventVerifiers
+    ) public onlyOwner {
+        string memory eventID = bytes32ToString(eventId);
+
+        mutate(
+                tableIDs[1],
                 SQLHelpers.toInsert(
-                    COMPANY_TABLE_PREFIX,
-                    tableIDs[0],
-                    "company, verifier, isAdmin",
+                    EVENT_TABLE_PREFIX,
+                    tableIDs[1],
+                    "company, eventID, cid, startTime, endTime",
                     string.concat(
                         SQLHelpers.quote(company),
                         ",",
-                        SQLHelpers.quote(Strings.toHexString(verifiers[i])),
-                        ",",
-                        SQLHelpers.quote("false")
+                        SQLHelpers.quote(cid),
+                        ",",                     
+                        SQLHelpers.quote(eventID),
+                        ",",                        
+                        SQLHelpers.quote(Strings.toString(block.timestamp)),
+                        ",",                        
+                        SQLHelpers.quote(Strings.toString(endTime))
                     )
                 )
+        );
+        for(uint256 i = 0; i < eventVerifiers.length; i++ ){
+            mutate(
+                    tableIDs[2],
+                    SQLHelpers.toInsert(
+                        EVENT_VERIFIERS_TABLE_PREFIX,
+                        tableIDs[2],
+                        "eventID text, verifier text",
+                        string.concat(
+                            SQLHelpers.quote(eventID),
+                            ",",
+                            SQLHelpers.quote(Strings.toHexString(eventVerifiers[i]))
+                        )
+                    )
             );
         }
+    }
+
+    function bytes32ToString(bytes32 data) public pure returns (string memory) {
+        // Fixed buffer size for hexadecimal convertion
+        bytes memory converted = new bytes(data.length * 2);
+
+        bytes memory _base = "0123456789abcdef";
+
+        for (uint256 i = 0; i < data.length; i++) {
+            converted[i * 2] = _base[uint8(data[i]) / _base.length];
+            converted[i * 2 + 1] = _base[uint8(data[i]) % _base.length];
+        }
+
+        return string(abi.encodePacked("0x", converted));
     }
 
     /*

@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { Navbar } from '@/components/layout';
 import Footer from '@/components/Footer';
 import { Tabs, TabsHeader, TabsBody, Tab, TabPanel } from "@material-tailwind/react";
-import {  UserCircleIcon } from "@heroicons/react/outline";
-
-// Assume you have a custom Modal component for the attest form
-import AttestationForm from '@/components/AttestationForm';
+import { UserCircleIcon } from "@heroicons/react/outline";
+import AttestationForm from "@/components/AttestationForm";
+import Link from "next/link"; // Import the Link component
 
 const DashboardPage = () => {
   const data = [
@@ -22,11 +21,22 @@ const DashboardPage = () => {
       desc: "Attest and validate projects as a verifier.",
     },
   ];
+  const verifierCompanies = [
+    {
+      name: "Company 1",
+      description: "This is Company 1 description.",
+      admin: "Admin 1",
+    },
+    {
+      name: "Company 2",
+      description: "This is Company 2 description.",
+      admin: "Admin 2",
+    },
+  ];
 
   const [activeTab, setActiveTab] = useState("my-projects");
   const [attestModalOpen, setAttestModalOpen] = useState(false);
 
-  // Dummy data for user projects and verifier companies
   const userHypercerts = [
     {
       id: 1,
@@ -58,17 +68,19 @@ const DashboardPage = () => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
 
-      <div className="container mx-auto py-8">
+      <div className="container mx-auto py-8  justify-center">
         <h1 className="text-2xl font-semibold mb-4">Dashboard</h1>
 
-        <Tabs value={activeTab} onChange={handleTabChange}>
-          <TabsHeader>
-            {data.map(({ label, value, icon }) => (
+        <Tabs value="my-projects" className="max-w-[40rem]">
+          <TabsHeader
+            className="bg-transparent"
+            indicatorProps={{
+              className: "bg-gray-900/10 shadow-none !text-gray-900",
+            }}
+          >
+            {data.map(({ label, value }) => (
               <Tab key={value} value={value}>
-                <div className="flex items-center gap-2">
-                  {React.createElement(icon, { className: "w-5 h-5" })}
-                  {label}
-                </div>
+                {label}
               </Tab>
             ))}
           </TabsHeader>
@@ -76,20 +88,32 @@ const DashboardPage = () => {
             <TabPanel value="my-projects">
               <h2 className="text-lg font-semibold mb-2">My Projects</h2>
               {userHypercerts.map((hypercert) => (
-                <div key={hypercert.id} className="bg-blue-100 p-4 rounded mb-4">
-                  <h3 className="text-md font-semibold">{hypercert.name}</h3>
-                  <p className="mb-2">{hypercert.description}</p>
+                <div
+                  key={hypercert.id}
+                  className="bg-blue-100 p-4 rounded mb-4"
+                >
+                  <h3 className="text-md font-semibold mb-1">
+                    {hypercert.name}
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {hypercert.description}
+                  </p>
                   <div className="flex space-x-2">
-                    {hypercert.hypercert.categories.map((category, categoryIndex) => (
-                      <span
-                        key={categoryIndex}
-                        className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
-                      >
-                        {category.category}
-                      </span>
-                    ))}
+                    {hypercert.hypercert.categories.map(
+                      (category, categoryIndex) => (
+                        <span
+                          key={categoryIndex}
+                          className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
+                        >
+                          {category.category}
+                        </span>
+                      )
+                    )}
                   </div>
-                  <button onClick={handleAttestButtonClick} className="bg-blue-500 text-white px-2 py-1 rounded mt-2">
+                  <button
+                    onClick={handleAttestButtonClick}
+                    className="bg-blue-500 text-white px-2 py-1 rounded mt-2"
+                  >
                     Attest Completed Task
                   </button>
                 </div>
@@ -97,22 +121,40 @@ const DashboardPage = () => {
             </TabPanel>
             <TabPanel value="verifier-companies">
               <h2 className="text-lg font-semibold mb-2">Verifier Companies</h2>
-              {/* Render verifier companies and the attestation/validation process */}
+              {verifierCompanies.map((company, index) => (
+                <div
+                  key={index}
+                  className={`bg-blue-100 p-4 rounded mb-4 ${
+                    activeTab === "verifier-companies" ? "bg-opacity-80" : ""
+                  }`}
+                >
+                  <Link href={`/company`}>
+                    <h3 className="text-md font-bold mb-1">{company.name}</h3>
+                  </Link>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {company.description}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Admin: {company.admin}
+                  </p>
+                </div>
+              ))}
             </TabPanel>
           </TabsBody>
+          {/* Attest Modal */}
+          {attestModalOpen && (
+            <div className="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+              <AttestationForm
+                onClose={() => setAttestModalOpen(false)}
+                // Pass necessary props to the attest modal component
+              />
+            </div>
+          )}
         </Tabs>
       </div>
 
       <div className="flex-grow"></div>
       <Footer />
-
-      {/* Attest Modal */}
-      {attestModalOpen && (
-        <AttestationForm
-          onClose={() => setAttestModalOpen(false)}
-          // Pass necessary props to the attest modal component
-        />
-      )}
     </div>
   );
 };

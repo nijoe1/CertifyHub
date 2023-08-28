@@ -9,7 +9,7 @@ import {ITablelandVerifiers} from "../interfaces/ITablelandVerifiers.sol";
 contract VerifiersRegistry is ERC1155, AccessControl {
   using EnumerableSet for EnumerableSet.Bytes32Set;
 
-  bytes32 constant private REGISTRAR_ROLE = keccak256(abi.encode("VerifierCompany_Registrar"));
+  bytes32 constant private REGISTRAR_ROLE = keccak256(abi.encode("REGISTRAR_ROLE"));
 
   ITablelandVerifiers indexerContract;
 
@@ -21,36 +21,48 @@ contract VerifiersRegistry is ERC1155, AccessControl {
     indexerContract = _indexerContract;
   }
 
-  function registerVerifiers(string memory company, address admin, address[] memory verifiers) external onlyRole(REGISTRAR_ROLE){
+  function registerCompany(string memory company,string memory image,string memory description, address admin) external onlyRole(REGISTRAR_ROLE){
+      bytes32 ADMIN_ROLE = keccak256(abi.encode(company,"ADMIN"));  
+      _grantRole(ADMIN_ROLE, admin);
+      indexerContract.insertCompany(company, image, description, admin);
+  }
+
+  function registerEvent(string memory company, string memory eventType, string memory eventName, string memory cid, address[] memory eventVerifiers, uint256 duration) external onlyRole(getCompanyAdminRole(company)){
     
-    bytes32 VERIFIER_ROLE = keccak256(abi.encode(company));
-    
-    bytes32 ADMIN_ROLE = keccak256(abi.encode(company,admin));
+    bytes32 VERIFIER_ROLE = keccak256(abi.encode(company,eventType,eventName));
+
     require(!RegisteredVerifierRoles.contains(VERIFIER_ROLE), "ALREADY REGISTERED");
 
-    _grantRole(ADMIN_ROLE, admin);
-    _mint(admin, uint256(VERIFIER_ROLE), 1, "");
-    for(uint i = 0; i < verifiers.length; i++){
-      _mint(verifiers[i], uint256(VERIFIER_ROLE), 1, "");
+    for(uint i = 0; i < eventVerifiers.length; i++){
+      _mint(eventVerifiers[i], uint256(VERIFIER_ROLE), 1, "");
     }
-    indexerContract.insertCompany(company, verifiers, admin);
+    
+    indexerContract.insertEvent(company, cid , VERIFIER_ROLE, duration + block.timestamp, eventVerifiers);
   }
 
-  function addVerifiers(string memory company,address[] memory verifiers) external onlyRole(getCompanyAdmin(company)){
-    bytes32 VERIFIER_ROLE = keccak256(abi.encode(company));
-    for(uint i = 0; i < verifiers.length; i++){
-      _mint(verifiers[i], uint256(VERIFIER_ROLE), 1, "");
+  // function addVerifiers(string memory company,address[] memory verifiers) external onlyRole(getCompanyAdmin(company)){
+  //   bytes32 VERIFIER_ROLE = keccak256(abi.encode(company));
+  //   for(uint i = 0; i < verifiers.length; i++){
+  //     _mint(verifiers[i], uint256(VERIFIER_ROLE), 1, "");
+  //   }
+  //   indexerContract.insertCompany(company, verifiers, msg.sender);
+  // }
+
+  // function removeVerifiers(string memory company,address[] memory verifiers) external onlyRole(getCompanyAdmin(company)){
+  //   bytes32 VERIFIER_ROLE = keccak256(abi.encode(company));
+  //   for(uint i = 0; i < verifiers.length; i++){
+  //     _mint(verifiers[i], uint256(VERIFIER_ROLE), 1, "");
+  //   }
+  //   indexerContract.insertCompany(company, verifiers, msg.sender);
+  // }
+
+  function addAdmins(string memory company,address[] memory admins) external onlyRole(getCompanyAdminRole(company)){
+    for(uint i = 0; i < admins.length; i++){
+      bytes32 ADMIN_ROLE = keccak256(abi.encode(company,admins[i]));
+      _grantRole(ADMIN_ROLE, admins[i]);
     }
-    indexerContract.insertCompany(company, verifiers, msg.sender);
   }
 
-  function removeVerifiers(string memory company,address[] memory verifiers) external onlyRole(getCompanyAdmin(company)){
-    bytes32 VERIFIER_ROLE = keccak256(abi.encode(company));
-    for(uint i = 0; i < verifiers.length; i++){
-      _mint(verifiers[i], uint256(VERIFIER_ROLE), 1, "");
-    }
-    indexerContract.insertCompany(company, verifiers, msg.sender);
-  }
   
   function _beforeTokenTransfer(
       address  /* operator */,
@@ -73,8 +85,8 @@ contract VerifiersRegistry is ERC1155, AccessControl {
           interfaceId == type(AccessControl).interfaceId;
   }
 
-  function getCompanyAdmin(string memory company)internal view returns(bytes32){
-    return keccak256(abi.encode(company,msg.sender));
+  function getCompanyAdminRole(string memory company)internal pure returns(bytes32){
+    return keccak256(abi.encode(company,"ADMIN"));
   }
 
 }

@@ -156,6 +156,15 @@ export const getCategories = async() => {
     return result
 }
 
+// export const getCategories = async() => {
+//     const query = `SELECT DISTINCT(category) FROM ${tableName}`;
+//     const encodedQuery = encodeURIComponent(query);
+//     const fullURL = `${URL}format=objects&extract=true&statement=${encodedQuery}`;
+//     const categories = await fetch(fullURL);
+//     let result = await (categories.json())
+//     return result
+// }
+
 export const getRegisteredCompanies = async(userAddress) => {
     const categories = await fetch("https://testnets.tableland.network/api/v1/query?format=objects&extract=true&statement=%20SELECT%20DISTINCT(category)%20FROM%20%20%20hypercert_categories_5_1486");
     let result = await (categories.json())

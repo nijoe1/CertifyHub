@@ -9,7 +9,17 @@ const HypercertProfile = ({ hypercert }) => {
     <div className="grid place-items-center py-8 overflow-y-auto">
       <div className="w-3/4 max-w-xl text-center">
         {/* Image */}
-        <img src={image} alt="Hypercert Image" className="w-full h-full mb-4" />
+        <div className="flex justify-center items-center mb-4" >
+          <img
+            src={image}
+            alt="Hypercert Image"
+            className="w-1/2 h-auto" // Set the width to 50% and height auto
+            style={{
+              maxWidth: '50%',   // Optional: You can use inline style to set max width
+              height: 'auto',    // Optional: You can set height to auto
+            }}
+          />
+        </div>
 
         {/* Hypercert Name */}
         <h2 className="text-2xl font-semibold text-blue-600 mb-2">{name}</h2>
