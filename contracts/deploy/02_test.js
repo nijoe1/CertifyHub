@@ -38,7 +38,7 @@ module.exports = async({ deployments }) => {
 
     const FundTheGoods = await hre.ethers.getContractFactory("CertifyHub");
 
-    const VerifiersRegistryInstance = VerifiersRegistry.attach(tableland.address);
+    const VerifiersRegistryInstance = VerifiersRegistry.attach(ttablelandAddress);
 
     const FundTheGoodsInstance = FundTheGoods.attach(
         FundTheGoodsAddress

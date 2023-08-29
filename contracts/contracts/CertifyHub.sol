@@ -221,17 +221,17 @@ contract CertifyHub is SchemaResolver {
     }
 
     function fundProject(uint256 projectID, bytes32 fromEvent)external payable{
-        indexerContract.insertFunding(projectID, bytes32ToString(fromEvent), msg.value);
+        indexerContract.insertFunding(projectID, bytes32ToString(fromEvent), msg.value, address(0),projectInfo[projectID].splitAddress);
         address payable to = payable(projectInfo[projectID].splitAddress);
         Address.sendValue(to, msg.value);
         Address.functionCall(to, abi.encodeWithSignature("distribute()"));
-    }
+    }        
 
-    function fundProjectERC20(uint256 projectID, bytes32 fromEvent, IERC20 fundingToken, uint256 fundingAmount) external payable{
-        indexerContract.insertFunding(projectID, bytes32ToString(fromEvent), msg.value);
+    function fundProjectERC20(uint256 projectID, bytes32 fromEvent, address fundingToken, uint256 fundingAmount) external payable{
+        indexerContract.insertFunding(projectID, bytes32ToString(fromEvent), msg.value, fundingToken,projectInfo[projectID].splitAddress);
         address payable to = payable(projectInfo[projectID].splitAddress);
-        fundingToken.transferFrom(msg.sender, projectInfo[projectID].splitAddress, fundingAmount);
-        Address.functionCall(to, abi.encodeWithSignature("distribute()"));
+        IERC20(fundingToken).transferFrom(msg.sender, projectInfo[projectID].splitAddress, fundingAmount);
+        Address.functionCall(to, abi.encodeWithSignature("distribute(address)",fundingToken));
     }
 
 

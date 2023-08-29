@@ -1,37 +1,52 @@
-import React, { useState,useEffect } from 'react';
-import { Navbar } from '@/components/layout';
-import Footer from '@/components/Footer';
-import { Tabs, TabsHeader, TabsBody, Tab, TabPanel } from "@material-tailwind/react";
+import React, { useState, useEffect } from "react";
+import { Navbar } from "@/components/layout";
+import Footer from "@/components/Footer";
+import {
+  Tabs,
+  TabsHeader,
+  TabsBody,
+  Tab,
+  TabPanel,
+} from "@material-tailwind/react";
 import { UserCircleIcon } from "@heroicons/react/outline";
 import AttestationForm from "@/components/AttestationForm";
 import Link from "next/link"; // Import the Link component
-import {useAccount} from "wagmi"
-import { fetchEnsName } from '@wagmi/core';
-import { ENS } from '@ensdomains/ensjs'
-import ether from 'ethers';
+import { useAccount } from "wagmi";
+import { fetchEnsName } from "@wagmi/core";
+import { ENS } from "@ensdomains/ensjs";
+import { providers } from "ethers";
 
 type UserProfileProps = {
   profileData: any; // You should replace 'any' with the actual type of your project
 };
 
-const UserProfile  : React.FC<UserProfileProps> = ({ profileData }) => {
-  const { address } = useAccount()
-  const [ens, setEns] = useState("")
+
+
+const UserProfile: React.FC<UserProfileProps> = ({ profileData }) => {
+  const { address } = useAccount();
+  const [ens, setEns] = useState("");
+  const _ens = new ENS();
+  // const transactions  = {
+  //    textSet: resolver.contract.methods.setText(node, "url", "https://ethereum.org/").encodeABI();
+  // }
+  const provider = new providers.JsonRpcProvider("RPC_URL_HERE");
   useEffect(() => {
     async function fetchHypercerts() {
+      await _ens.setProvider(provider);
+
       let resolvedAddress = await fetchEnsName({
         address: address as `0x{string}`,
       });
-      console.log(resolvedAddress)
-      if(resolvedAddress){
-        setEns(resolvedAddress.toString())
+      console.log(resolvedAddress);
+      if (resolvedAddress) {
+        setEns(resolvedAddress.toString());
       }
     }
 
     fetchHypercerts();
   }, []);
 
-  let hasENS = false
+  let hasENS = false;
   return (
     <div className="flex items-center justify-center p-4">
       <div className="bg-gray-100 p-4 rounded-lg shadow-md w-80">
@@ -64,11 +79,15 @@ const UserProfile  : React.FC<UserProfileProps> = ({ profileData }) => {
             </a>
           </div>
           <div className="flex justify-center space-x-2">
-              {hasENS ?           <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
-            Update Profile
-          </button> :           <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
-            RegisterENS
-          </button>}
+            {hasENS ? (
+              <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
+                Update Profile
+              </button>
+            ) : (
+              <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
+                RegisterENS
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -78,8 +97,8 @@ const UserProfile  : React.FC<UserProfileProps> = ({ profileData }) => {
 const DashboardPage = () => {
   const data = [
     {
-      label: "My Projects",
-      value: "my-projects",
+      label: "Projects",
+      value: "projects",
       icon: UserCircleIcon,
       desc: "View and manage your projects.",
     },
@@ -103,8 +122,16 @@ const DashboardPage = () => {
     },
   ];
 
-  const [activeTab, setActiveTab] = useState("my-projects");
+  const [activeTab, setActiveTab] = useState("projects");
   const [attestModalOpen, setAttestModalOpen] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: "John Doe",
+    title: "Web Developer",
+    image:
+      "https://gateway.lighthouse.storage/ipfs/QmYuugRzTzN1k6DEFRrNj27pMCah2z1AAJnvNNmnPQJuAY",
+    github: "https://github.com/johndoe",
+    twitter: "https://twitter.com/johndoe",
+  });
 
   const userHypercerts = [
     {
@@ -125,15 +152,7 @@ const DashboardPage = () => {
     },
   ];
 
-  const profileData = {
-    name: "John Doe",
-    title: "Web Developer",
-    image: "https://gateway.lighthouse.storage/ipfs/QmYuugRzTzN1k6DEFRrNj27pMCah2z1AAJnvNNmnPQJuAY",
-    github: "https://github.com/johndoe",
-    twitter: "https://twitter.com/johndoe",
-  };
-
-  const handleTabChange = (tabValue:any) => {
+  const handleTabChange = (tabValue: any) => {
     setActiveTab(tabValue);
   };
 
@@ -145,7 +164,7 @@ const DashboardPage = () => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div className="flex items-center justify-center p-4">
-      <UserProfile profileData={profileData} />
+        <UserProfile profileData={profileData} />
       </div>
       <div className="flex-grow flex items-center justify-center">
         {" "}

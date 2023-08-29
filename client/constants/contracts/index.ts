@@ -9,7 +9,7 @@ import fundTheCommonsAbi from "../abi/fundTheCommonsAbi.json";
 export const CONTRACTS = {
   fundTheCommons: {
     5: {
-      contract: "0xb8AB020E5F82178F1d6E3E5F34a928A29E6bb4AC" as Address,
+      contract: "0x9121EB64ACBf6C3E1380f9cA1D8BCc75bc03DEDB" as Address,
       abi: fundTheCommonsAbi,
     },
   },

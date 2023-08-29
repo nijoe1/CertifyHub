@@ -19,6 +19,7 @@ const Projects = () => {
   const [searchInput, setSearchInput] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [categories, setCategories] = useState([]);
+  const [categoriesSetted, setCategoriesSetted] = useState(false)
 
   const handleSearchInputChange = (event: any) => {
     setSearchInput(event.target.value);
@@ -31,8 +32,11 @@ const Projects = () => {
   useEffect(() => {
     async function fetchHypercerts() {
       const hypercertIdsData = await getRegisteredProjects(selectedCategory);
-      const cats = await getCategories();
-      setCategories(cats);
+      if(!categoriesSetted){
+        const cats = await getCategories();
+        setCategories(cats);
+        setCategoriesSetted(true)
+      }
 
       const hypercertList = [];
 
@@ -57,16 +61,13 @@ const Projects = () => {
     }
 
     fetchHypercerts();
-  }, [selectedCategory]);
+  }, [selectedCategory,categoriesSetted]);
 
-  let categoryOptions = [
+
+  const categoryOptions = [
     { value: "All Categories", label: "All Categories" },
-    // Add more options as needed
+    ...categories.map((category) => ({ value: category, label: category })),
   ];
-
-  for (const cat of categories) {
-    categoryOptions.push({ value: cat, label: cat });
-  }
 
   return (
     <div className="flex flex-col min-h-screen">

@@ -21,7 +21,7 @@ const RegisterPage = () => {
     address: CONTRACTS.fundTheCommons[5].contract,
     abi: CONTRACTS.fundTheCommons[5].abi,
     functionName: "registerHypercertProject",
-    args: [hypercertID, fractionIDs, registeredCategories],
+    args: [hypercertID, fractionIDs, registeredCategories,registeredCategories],
   });
   const { write } = useContractWrite(config);
 

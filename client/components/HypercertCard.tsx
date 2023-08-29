@@ -67,7 +67,7 @@ export default function HypercertCard({
     infinite: false,
     speed: 300,
     slidesToShow: 1,
-    slidesToScroll: 2,
+    slidesToScroll: 1,
     variableWidth: true,
   };
 
@@ -90,7 +90,7 @@ export default function HypercertCard({
         <Typography color="gray">{truncatedDescription}</Typography>
         <div className="mt-2 flex items-center">
           <strong className="mr-2">Rating:</strong>
-          <Rating value={4} readonly className="flex space-x-1" />
+          <Rating value={4} readonly  />
         </div>
         <div className="mt-2">
           <Typography>

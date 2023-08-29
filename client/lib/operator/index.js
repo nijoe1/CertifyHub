@@ -2,6 +2,18 @@ import { ApolloClient, InMemoryCache, gql } from "@apollo/client";
 import { NFTStorage, Blob } from "nft.storage";
 import axios from "axios";
 
+const tables = {
+    categories:"hypercert_categories_5_1527",
+    fundings:"hypercert_fundings_5_1528",
+    attestations:"hypercert_attestations_5_1529",
+    tasks:"hypercert_completed_tasks_5_1530",
+    project_events:"hypercert_events_5_1531",
+    project_splitters:"hypercert_splitters_5_1532",
+    company:"company_5_1533",
+    company_event:"event_5_1534",
+    company_event_verifiers:"event_verifiers_5_1535"
+}
+
 export const getIpfsGatewayUri = (cidOrIpfsUri) => {
     const NFT_STORAGE_IPFS_GATEWAY = "https://nftstorage.link/ipfs/{cid}";
     // const cid = cidOrIpfsUri.replace("ipfs://", "");
@@ -76,7 +88,6 @@ export const getClaims = async(claimId) => {
         query,
         fetchPolicy: "no-cache",
     });
-    console.log(response.data);
     return response.data;
 }
 
@@ -112,7 +123,6 @@ export const getUserProjects = async(userAddress) => {
 
     let query = gql`{
         claimTokens(where: { owner: "${userAddress}" } ) {
-            chainName
             id
             owner
             tokenID
@@ -138,32 +148,66 @@ export const getRegisteredClaimIDs = async() => {
     return await (hypercertIdsResponse).json()
 }
 
-export const getRegisteredProjects = async(category) => {
-    if (category === "All Categories") {
-        const hypercertIdsResponse = await fetch("https://testnets.tableland.network/api/v1/query?format=objects&extract=true&statement=%20SELECT%20json_object(%20%27claimID%27,%20A.claimID,%20%27categories%27,%20json_group_array(%20json_object(%20%27category%27,%20B.category%20)%20)%20)%20FROM%20hypercert_categories_5_1486%20%20AS%20A%20JOIN%20hypercert_categories_5_1486%20%20AS%20B%20ON%20A.claimID%20=%20B.claimID%20GROUP%20BY%20A.claimID")
-        let result = await (hypercertIdsResponse.json())
-        return result
-    } else {
-        const hypercertIdsResponse = await fetch("https://testnets.tableland.network/api/v1/query?format=objects&extract=true&statement=%20SELECT%20json_object(%20%27claimID%27,%20A.claimID,%20%27categories%27,%20json_group_array(%20json_object(%20%27category%27,%20B.category%20)%20)%20)%20FROM%20hypercert_categories_5_1486%20%20AS%20A%20JOIN%20hypercert_categories_5_1486%20%20AS%20B%20ON%20A.claimID%20=%20B.claimID%20WHERE%20A.category=%27" + category + "%27%20GROUP%20BY%20A.claimID")
-        let result = await (hypercertIdsResponse.json())
-        return result
-    }
-}
 
-export const getCategories = async() => {
-    const categories = await fetch("https://testnets.tableland.network/api/v1/query?format=objects&extract=true&statement=%20SELECT%20DISTINCT(category)%20FROM%20%20%20hypercert_categories_5_1486");
+export const getRegisteredProjects = async (category) => {
+    let url = '';
+  
+    if (category === 'All Categories') {
+      url = buildUrlForAllCategories();
+    } else {
+      url = buildUrlForSpecificCategory(category);
+    }
+  
+    const hypercertIdsResponse = await fetch(url);
+    const result = await hypercertIdsResponse.json();
+    return result;
+  };
+  
+  const buildUrlForAllCategories = () => {
+    const tableName = tables.categories; // Replace with your actual table name
+    return (
+      `https://testnets.tableland.network/api/v1/query` +
+      `?format=objects&extract=true&statement=` +
+      encodeURIComponent(
+        `SELECT json_object('claimID', A.claimID, 'categories', json_group_array(json_object('category', B.category))) FROM ${tableName} AS A JOIN ${tableName} AS B ON A.claimID = B.claimID GROUP BY A.claimID`
+      )
+    );
+  };
+  
+  const buildUrlForSpecificCategory = (category) => {
+    const tableName = tables.categories; // Replace with your actual table name
+    return (
+      `https://testnets.tableland.network/api/v1/query` +
+      `?format=objects&extract=true&statement=` +
+      encodeURIComponent(
+        `SELECT json_object('claimID', A.claimID, 'categories', json_group_array(json_object('category', B.category))) FROM ${tableName} AS A JOIN ${tableName} AS B ON A.claimID = B.claimID WHERE A.category='${category}' GROUP BY A.claimID`
+      )
+    );
+  };
+
+// export const getCategories = async() => {
+//     const categories = await fetch("https://testnets.tableland.network/api/v1/query?format=objects&extract=true&statement=%20SELECT%20DISTINCT(category)%20FROM%20%20%20hypercert_categories_5_1486");
+//     let result = await (categories.json())
+//     return result
+// }claimID text, contributor text, cid text
+
+export const getProjectUpdates = async() => {
+    const query = `SELECT * FROM ${tables.tasks}`;
+    const encodedQuery = encodeURIComponent(query);
+    const fullURL = `https://testnets.tableland.network/api/v1/query?` +`format=objects&extract=true&statement=${encodedQuery}`;
+    const categories = await fetch(fullURL);
     let result = await (categories.json())
     return result
 }
 
-// export const getCategories = async() => {
-//     const query = `SELECT DISTINCT(category) FROM ${tableName}`;
-//     const encodedQuery = encodeURIComponent(query);
-//     const fullURL = `${URL}format=objects&extract=true&statement=${encodedQuery}`;
-//     const categories = await fetch(fullURL);
-//     let result = await (categories.json())
-//     return result
-// }
+export const getCategories = async() => {
+    const query = `SELECT DISTINCT(category) FROM ${tables.categories}`;
+    const encodedQuery = encodeURIComponent(query);
+    const fullURL = `https://testnets.tableland.network/api/v1/query?` +`format=objects&extract=true&statement=${encodedQuery}`;
+    const categories = await fetch(fullURL);
+    let result = await (categories.json())
+    return result
+}
 
 export const getRegisteredCompanies = async(userAddress) => {
     const categories = await fetch("https://testnets.tableland.network/api/v1/query?format=objects&extract=true&statement=%20SELECT%20DISTINCT(category)%20FROM%20%20%20hypercert_categories_5_1486");

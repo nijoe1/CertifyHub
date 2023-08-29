@@ -6,8 +6,10 @@ interface ITableland {
     function insertFunding(
         uint256 claimID,
         string memory company,
-        uint256 fundAmount
-    ) external; 
+        uint256 fundAmount,
+        address ERC20Token,
+        address splitterAddress
+    )  external; 
 
     function insertAttestation(
         uint256 claimID,

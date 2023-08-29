@@ -36,11 +36,11 @@ module.exports = async({ deployments }) => {
     console.log("tablelandVerifiers Address=> ", tablelandVerifiers.address);
 
 
-    // tableland Address => 0xf5b9c85F82Dc5BD8412e8C44FDbcc322774eF2C2
-    // tablelandVerifiers Address => 0xeAceE940B3dBF549c743fFFFC96Bf0F8A1551C0B
-    // verifiersRegistry Address => 0x03190FF1CE6f978Ae72C7695590E10C8a639C11E
+    // tableland Address=>  0x24c557F453AE8Ba9A54AB42f84aB398A0197366b
+    // tablelandVerifiers Address=>  0xd5844Cf7798e7c026f82645034bA33e532fcA15C
+    // verifiersRegistry Address=>  0x286A4Fa80c9bB2Ffd09B08A350140bBBA0dB162d
     // transfered to verifiersRegistry
-    // fundTheGoods Address => 0xf53380a7a622a2A5ef2b054b5079fE63e1E042d8
+    // fundTheGoods Address=>  0x9121EB64ACBf6C3E1380f9cA1D8BCc75bc03DEDB
 
     const tablelandAddress = "0x11911136E9bA5579eAC69B2e812db3bC42033726";
     const tablelandVerifiersAddress =

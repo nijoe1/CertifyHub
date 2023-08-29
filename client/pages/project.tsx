@@ -14,19 +14,35 @@ import ReceivedFundingsItem from "@/components/ReceivedFundingsItem";
 import ProjectUpdatesItem from "@/components/ProjectUpdatesItem";
 import ProjectFeedbackItem from "@/components/ProjectFeedbackItem";
 import EventItem from "@/components/EventItem";
-import { getData, getClaims } from "../lib/operator/index";
+import { getData, getClaims,getUserHypercerts } from "../lib/operator/index";
 import { useRouter } from 'next/router';
 import Link from 'next/link'; // Import the Link component
+import { useAccount } from "wagmi";
 
 const ProjectPage = () => {
   const router = useRouter();
   const [hypercertData, setHypercertData] = useState(null);
+  const [isOwner, setIsOwner] = useState(false)
+  const {address} = useAccount()
 
   // Fetch hypercert information based on the claimID from the router query
   useEffect(() => {
     const claimID = router?.query?.id;
     async function fetchHypercerts(claimID:any) {
       const claimTokens = await getClaims(claimID);
+      const userClaims = await getUserHypercerts(address)
+      console.log(userClaims)
+      if(userClaims.claims.length > 0 ){
+        for(const claim of userClaims.claims){
+          let id = "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-"+claim.tokenID
+          if(id == claimID){
+            console.log(claim.tokenID)
+            setIsOwner(true)
+            break;
+          }
+        }
+      }
+
       const metadataUri = claimTokens?.claimTokens[0]?.claim.uri;
       const metadata = await getData(metadataUri);
       metadata.id = claimID || undefined;
@@ -35,7 +51,7 @@ const ProjectPage = () => {
       }
     }
     fetchHypercerts(claimID);
-  }, [router.query.id]);
+  }, [router.query.id,isOwner]);
 
   const tabsData = [
     {
@@ -117,7 +133,7 @@ const ProjectPage = () => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div className="flex-grow p-4">
-        {hypercertData && <HypercertProfile hypercert={hypercertData} />}
+        {hypercertData && <HypercertProfile hypercert={hypercertData} isOwner= {isOwner} />}
 
         <Tabs value={activeTab} className="max-w-[40rem] mx-auto">
           <TabsHeader

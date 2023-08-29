@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@material-tailwind/react";
 import EthereumAddress from "./EthereumAddress";
+import { useAccount } from "wagmi";
+import FeedbackModal from '@/components/FeedbackModal';
 
 type Hypercert = {
   id: string;
@@ -18,10 +20,17 @@ type Hypercert = {
 
 type HypercertProfileProps = {
   hypercert: Hypercert;
+  isOwner:boolean;
 };
 
-const HypercertProfile: React.FC<HypercertProfileProps> = ({ hypercert }) => {
-  const { name, description, image, external_url, hypercert: hc } = hypercert;
+const HypercertProfile: React.FC<HypercertProfileProps> = ({ hypercert ,isOwner}) => {
+  const { name, description, image, id,external_url, hypercert: hc } = hypercert;
+  const {address} = useAccount()
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+
+  const handleLeaveFeedback = (project:any) => {
+    setFeedbackModalOpen(true);
+  };
 
   return (
     <div className="grid place-items-center py-8 overflow-y-auto">
@@ -67,7 +76,7 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({ hypercert }) => {
         <div className="flex justify-center gap-4 mt-4">
           <Button
             color="blue"
-            onClick={() => console.log("Provide Feedback clicked")}
+            onClick={() => handleLeaveFeedback(1)}
           >
             Provide Feedback
           </Button>
@@ -77,6 +86,12 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({ hypercert }) => {
           >
             Fund Project!
           </Button>
+          {isOwner && <Button
+            color="green"
+            onClick={() => console.log("Fund Project clicked")}
+          >
+            attest update
+          </Button>}
         </div>
 
         {/* External URL */}
@@ -89,6 +104,9 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({ hypercert }) => {
           external url
         </a>
       </div>
+      {feedbackModalOpen && (
+        <FeedbackModal project={id.replace("0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-", "")} onClose={() => setFeedbackModalOpen(false)} />
+      )}
     </div>
   );
 };

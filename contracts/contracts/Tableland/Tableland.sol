@@ -139,9 +139,6 @@ contract Tableland is Ownable {
         uint8 feedbackRange,
         string memory comment
     ) public onlyOwner {
-        if(feedbackRange > 1){
-            feedbackRange --; 
-        }
         mutate(
             tableIDs[2],
             SQLHelpers.toInsert(
