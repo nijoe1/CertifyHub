@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-
-const AttestationForm = ({ onClose }) => {
+type AttestationFormProps = {
+  onClose: () => void; // Specify the type of onClose prop
+};
+const AttestationForm: React.FC<AttestationFormProps> = ({ onClose }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -29,7 +31,8 @@ const AttestationForm = ({ onClose }) => {
     const attestationData = {
       name: formData.name,
       description: formData.description,
-      file: formData.file ? formData.file.name : '',
+      // @ts-ignore
+      file: formData?.file ? formData?.file.name : '',
     };
     // Do something with attestationData (e.g., store it, send it to a server, etc.)
     console.log('Attestation Data:', attestationData);

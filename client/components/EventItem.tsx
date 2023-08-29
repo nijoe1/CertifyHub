@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-const EventItem = ({ name, description, eventID, image }) => {
+const EventItem = ({name, description, eventID, image }) => {
   return (
     <div className="bg-blue-100 p-4 rounded mb-4">
       <div className="flex items-center justify-between">
