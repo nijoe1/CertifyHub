@@ -93,7 +93,9 @@ const RegisterPage = () => {
             >
               Import Hypercert
             </button>
-            <Tooltip text="Click this button to import a hypercert." children={undefined} />
+            <Tooltip text="Click this button to import a hypercert.">
+              {/* Children elements go here */}
+            </Tooltip>{" "}
           </div>
 
           {/* Imported Hypercert Info */}
@@ -152,6 +154,6 @@ const RegisterPage = () => {
       </div>
     </>
   );
-};  
+};
 
 export default RegisterPage;
