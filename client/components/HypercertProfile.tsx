@@ -63,7 +63,7 @@ const HypercertProfile = ({ hypercert }) => {
           rel="noopener noreferrer"
           className="block text-blue-600 hover:underline mt-4"
         >
-          Learn More
+          external url
         </a>
       </div>
     </div>

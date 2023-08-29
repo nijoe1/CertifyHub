@@ -58,9 +58,9 @@ export default function HypercertCard({ hypercert, onDetailsClick }) {
         <strong>Description:</strong>
         <Typography color="gray">{truncatedDescription}</Typography>
         <div className="mt-2 flex items-center">
-          <strong className="mr-2">Rating:</strong>
-          <Rating value={4} size="md" readonly />
-        </div>
+  <strong className="mr-2">Rating:</strong>
+  <Rating value={4} size="sm" readonly className="flex space-x-1" />
+</div>
         <div className="mt-2">
           <Typography>
             <strong>Contributors:</strong>
@@ -106,7 +106,7 @@ export default function HypercertCard({ hypercert, onDetailsClick }) {
           rel="noopener noreferrer"
           className="block text-blue-600 hover:underline mt-0"
         >
-          Learn More
+          external url
         </a>
         <Button
           onClick={handleDetailsClick}

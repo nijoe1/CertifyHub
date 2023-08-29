@@ -29,7 +29,7 @@ contract Tableland is Ownable {
     string private constant HYPERCERT_EVENTS_SCHEMA = "claimID text, eventID text";
 
     string private constant HYPERCERT_FUNDINGS_TABLE_PREFIX = "hypercert_fundings";
-    string private constant HYPERCERT_FUNDINGS_SCHEMA = "claimID text, funder text, fundAmount text";
+    string private constant HYPERCERT_FUNDINGS_SCHEMA = "claimID text, funder text, fundAmount text, ERC20Token text, splitterAddress text";
 
     string private constant ATTESTATIONS_TABLE_PREFIX = "hypercert_attestations";
     string private constant ATTESTATIONS_SCHEMA = "claimID text, verifier text, company text, feedbackRange text, comment text";
@@ -37,6 +37,8 @@ contract Tableland is Ownable {
     string private constant TASK_TABLE_PREFIX = "hypercert_completed_tasks";
     string private constant TASK_SCHEMA = "claimID text, contributor text, cid text";
     
+    string private constant SPLIT_TABLE_PREFIX = "hypercert_splitters";
+    string private constant SPLIT_SCHEMA = "claimID text, splitterAddress text, createdAt text";
 
     constructor() {
         tablelandContract = TablelandDeployments.get();
@@ -55,9 +57,13 @@ contract Tableland is Ownable {
             SQLHelpers.toCreateFromSchema(TASK_SCHEMA, TASK_TABLE_PREFIX)
         );
 
-        // createStatements.push(
-        //     SQLHelpers.toCreateFromSchema(HYPERCERT_EVENTS_SCHEMA, HYPERCERT_EVENTS_TABLE_PREFIX)
-        // );
+        createStatements.push(
+            SQLHelpers.toCreateFromSchema(HYPERCERT_EVENTS_SCHEMA, HYPERCERT_EVENTS_TABLE_PREFIX)
+        );
+
+        createStatements.push(
+            SQLHelpers.toCreateFromSchema(SPLIT_SCHEMA, SPLIT_TABLE_PREFIX)
+        );
 
 
         tableIDs = tablelandContract.create(address(this), createStatements);
@@ -67,8 +73,8 @@ contract Tableland is Ownable {
         tables.push(SQLHelpers.toNameFromId(HYPERCERT_FUNDINGS_TABLE_PREFIX, tableIDs[1]));
         tables.push(SQLHelpers.toNameFromId(ATTESTATIONS_TABLE_PREFIX, tableIDs[2]));
         tables.push(SQLHelpers.toNameFromId(TASK_TABLE_PREFIX, tableIDs[3]));
-        // tables.push(SQLHelpers.toNameFromId(HYPERCERT_EVENTS_TABLE_PREFIX, tableIDs[4]));
-
+        tables.push(SQLHelpers.toNameFromId(HYPERCERT_EVENTS_TABLE_PREFIX, tableIDs[4]));
+        tables.push(SQLHelpers.toNameFromId(SPLIT_TABLE_PREFIX, tableIDs[5]));
     }
 
 
@@ -184,20 +190,47 @@ contract Tableland is Ownable {
     function insertFunding(
         uint256 claimID,
         string memory company,
-        uint256 fundAmount
+        uint256 fundAmount,
+        address ERC20Token,
+        address splitterAddress
     ) public onlyOwner {
         mutate(
             tableIDs[1],
             SQLHelpers.toInsert(
                 HYPERCERT_FUNDINGS_TABLE_PREFIX,
                 tableIDs[1],
-                "claimID, funder, fundAmount",
+                "claimID, funder, fundAmount, ERC20Token, splitterAddress",
                 string.concat(
                     SQLHelpers.quote((Strings.toString(claimID))),
                     ",",
                     SQLHelpers.quote(company),
                     ",",
-                    SQLHelpers.quote((Strings.toString(fundAmount)))
+                    SQLHelpers.quote((Strings.toString(fundAmount))),
+                    ",",
+                    SQLHelpers.quote((Strings.toHexString(ERC20Token))),
+                    ",",
+                    SQLHelpers.quote((Strings.toHexString(splitterAddress)))
+                )
+            )
+        );
+    }
+
+    function insertSplitter(
+        uint256 claimID,
+        address splitterAddress
+    ) public onlyOwner {
+        mutate(
+            tableIDs[5],
+            SQLHelpers.toInsert(
+                SPLIT_TABLE_PREFIX,
+                tableIDs[5],
+                "claimID, splitterAddress, createdAt",
+                string.concat(
+                    SQLHelpers.quote((Strings.toString(claimID))),
+                    ",",
+                    SQLHelpers.quote((Strings.toHexString(splitterAddress))),
+                    ",",
+                    SQLHelpers.quote((Strings.toString(block.timestamp)))
                 )
             )
         );

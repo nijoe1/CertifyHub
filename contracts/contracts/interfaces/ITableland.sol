@@ -28,4 +28,9 @@ interface ITableland {
         address contributor,
         string memory cid
     ) external;
+
+    function insertSplitter(
+        uint256 claimID,
+        address splitterAddress
+    ) external;
 }

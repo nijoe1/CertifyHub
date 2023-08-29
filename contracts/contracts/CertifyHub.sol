@@ -8,6 +8,7 @@ import { SchemaResolver } from "./EAS/SchemaResolver.sol";
 import { IHypercert } from "./interfaces/IHypercert.sol";
 import { IEAS, Attestation } from "./interfaces/IEAS.sol";
 import { ITableland } from "./interfaces/ITableland.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title CertifyHub
@@ -50,6 +51,7 @@ contract CertifyHub is SchemaResolver {
         EnumerableSet.AddressSet owners;
         EnumerableSet.UintSet fractions;
         mapping(address => uint256) ownersShares;
+        address splitAddress;
     }
 
     mapping(uint256 => Project) private projectInfo;
@@ -92,7 +94,12 @@ contract CertifyHub is SchemaResolver {
 
         Projects.add(claimID);
         project.totalShares = totalShares;
+
+        project.splitAddress = createSplitter(claimID);
+
         indexerContract.insertHypercertInfo(claimID, categories, events);
+
+        indexerContract.insertSplitter(claimID, project.splitAddress);
     }
 
     /**
@@ -127,6 +134,10 @@ contract CertifyHub is SchemaResolver {
         }
 
         project.totalShares = projectTotalShares;
+
+        project.splitAddress = createSplitter(claimID);
+
+        indexerContract.insertSplitter(claimID, project.splitAddress);
     }
 
     // VIEW FUNCTIONS
@@ -170,22 +181,14 @@ contract CertifyHub is SchemaResolver {
      */
     function onAttest(
         Attestation calldata attestation,
-        uint256 value
+        uint256 
     ) internal override returns (bool) {
         (string memory cid, uint256 projectID, uint8 rangeFeedback, bytes32 eventID) =
             abi.decode(attestation.data, (string, uint256, uint8, bytes32));
         string memory ID = bytes32ToString(eventID);
         if (!Projects.contains(projectID)) return false;
-        if (rangeFeedback > 6) return false;
-
-        if (rangeFeedback == 0 && value > 0) {
-            // ADD FUNDING
-            indexerContract.insertFunding(projectID, ID, value);
-            projectInfo[projectID].fundingPool += value;
-            return true;
-        } else if (rangeFeedback == 1 && projectInfo[projectID].owners.contains(attestation.attester)) {
-            indexerContract.insertCompletedTask(projectID, attestation.attester, cid);
-        } else if (tokenGatedProjectVerifiers.balanceOf(attestation.attester, uint256((eventID))) > 0 || eventID == bytes32(0)) {
+        if (rangeFeedback >= 6) return false;
+        if (tokenGatedProjectVerifiers.balanceOf(attestation.attester, uint256((eventID))) > 0 || eventID == bytes32(0)) {
             indexerContract.insertAttestation(projectID, attestation.attester, ID, rangeFeedback, cid);
             return true;
         }
@@ -211,17 +214,36 @@ contract CertifyHub is SchemaResolver {
         return true;
     }
 
-    /**
+
+    function insertProjectUpdate(uint256 projectID, string memory cid) external {
+        require(projectInfo[projectID].owners.contains(msg.sender));
+        indexerContract.insertCompletedTask(projectID, msg.sender, cid);
+    }
+
+    function fundProject(uint256 projectID, bytes32 fromEvent)external payable{
+        indexerContract.insertFunding(projectID, bytes32ToString(fromEvent), msg.value);
+        address payable to = payable(projectInfo[projectID].splitAddress);
+        Address.sendValue(to, msg.value);
+        Address.functionCall(to, abi.encodeWithSignature("distribute()"));
+    }
+
+    function fundProjectERC20(uint256 projectID, bytes32 fromEvent, IERC20 fundingToken, uint256 fundingAmount) external payable{
+        indexerContract.insertFunding(projectID, bytes32ToString(fromEvent), msg.value);
+        address payable to = payable(projectInfo[projectID].splitAddress);
+        fundingToken.transferFrom(msg.sender, projectInfo[projectID].splitAddress, fundingAmount);
+        Address.functionCall(to, abi.encodeWithSignature("distribute()"));
+    }
+
+
+        /**
      * @notice Distributes minting funds among attesters using a splitter contract.
      * This function calculates the distribution of funds based on attestation counts and shares,
      * deploys a splitter contract, and sends the funds to it for distribution.
      * @param projectID The ID of the project to split funds for.
      */
-    function splitFunds(uint256 projectID) external {
+    function createSplitter(uint256 projectID) internal returns(address) {
         Project storage project = projectInfo[projectID];
         require(Projects.contains(projectID), "non registered project");
-        uint256 fundsToSplit = project.fundingPool;
-
         address[] memory owners = project.owners.values();
         uint256[] memory ownersShares = new uint256[](owners.length);
         address owner;
@@ -279,15 +301,7 @@ contract CertifyHub is SchemaResolver {
                 bytes32(block.number)
             )
         );
-
-        address splitterInstance = abi.decode(result, (address));
-
-        // Send the funds to the splitter contract for distribution
-        Address.sendValue(payable(splitterInstance), fundsToSplit);
-        // Distribute funds to valid attestors
-        Address.functionCall(splitterInstance, abi.encodeWithSignature("distribute()"));
-
-        project.fundingPool = 0;
+        return abi.decode(result, (address));
     }
 
     function bytes32ToString(bytes32 data) public pure returns (string memory) {

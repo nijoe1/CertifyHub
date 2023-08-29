@@ -1,19 +1,19 @@
 import {
-	polygonMumbai,
-	polygonZkEvmTestnet,
+	// polygonMumbai,
+	// polygonZkEvmTestnet,
 	goerli,
 	optimismGoerli,
-	filecoinHyperspace,
-	baseGoerli
+	// filecoinHyperspace,
+	// baseGoerli
 } from 'wagmi/chains';
 
 export const ETH_CHAINS = [
-	polygonMumbai,
-	polygonZkEvmTestnet,
+	// polygonMumbai,
+	// polygonZkEvmTestnet,
 	goerli,
 	optimismGoerli,
-	filecoinHyperspace,
-	baseGoerli,
+	// filecoinHyperspace,
+	// baseGoerli,
 ];
 export const WALLET_CONNECT_PROJECT_ID =
 	process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '';
