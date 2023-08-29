@@ -69,8 +69,8 @@ const Web3Provider = (props: Props) => {
 					darkMode: darkTheme({ overlayBlur: 'small' }),
 				}}
 				appInfo={{
-					appName: 'FundTheCommons',
-					learnMoreUrl: 'https://github.com/nijoe1/FundTheCommonsHackthon',
+					appName: 'CertifyHub',
+					learnMoreUrl: 'https://github.com/nijoe1/CertifyHub',
 				}}
 			>
 				{props.children}

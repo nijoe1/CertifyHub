@@ -11,9 +11,8 @@ import { ENS } from '@ensdomains/ensjs'
 import ether from 'ethers';
 
 const UserProfile = ({ profileData }) => {
-  const { address, provider } = useAccount()
+  const { address } = useAccount()
   const [ens, setEns] = useState("")
-  console.log(provider)
   useEffect(() => {
     async function fetchHypercerts() {
       let resolvedAddress = await fetchEnsName({
