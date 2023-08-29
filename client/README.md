@@ -55,6 +55,6 @@ We welcome contributions to improve and expand this boilerplate. To contribute, 
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more information.
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more information.1
 
 ---
