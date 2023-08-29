@@ -11,11 +11,11 @@ import { CONTRACTS } from "@/constants/contracts";
 const RegisterPage = () => {
   const [hypercertID, setHypercertID] = useState("");
   const [importedHypercert, setImportedHypercert] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [registeredCategories, setRegisteredCategories] = useState([]);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [fractionIDs, setFractionIDs] = useState([]);
-  const [error, setError] = useState(null); // Add state for error message
+  const [error, setError] = useState<string | null>(null); // Initial value is null
 
   const { config } = usePrepareContractWrite({
     address: CONTRACTS.fundTheCommons[5].contract,
@@ -26,7 +26,7 @@ const RegisterPage = () => {
   const { write } = useContractWrite(config);
 
   useEffect(() => {
-    async function fetchHypercert(claimID) {
+    async function fetchHypercert(claimID: any) {
       let id =
         "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-" + claimID.toString();
       const claimTokens = await getClaims(id);
@@ -64,7 +64,10 @@ const RegisterPage = () => {
   }, [hypercertID, registeredCategories]);
 
   const handleAddCategory = () => {
+    // @ts-ignore
     if (selectedCategory && !registeredCategories.includes(selectedCategory)) {
+      // @ts-ignore
+
       setRegisteredCategories([...registeredCategories, selectedCategory]);
       setSelectedCategory("");
     }
@@ -102,6 +105,7 @@ const RegisterPage = () => {
           {importedHypercert && (
             <HypercertCard
               hypercert={importedHypercert}
+              // @ts-ignore
               onDetailsClick={undefined}
             />
           )}

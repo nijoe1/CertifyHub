@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 
-const FeedbackModal = ({ project, onClose }) => {
+type FeedbackModalProps = {
+  project: any; // You should replace 'any' with the actual type of your project
+  onClose: () => void;
+};
+
+const FeedbackModal: React.FC<FeedbackModalProps> = ({ project, onClose }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [rating, setRating] = useState(1); // Default rating to 1
 
-  const handleRatingChange = (event) => {
+  const handleRatingChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRating(Number(event.target.value));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
     // TODO: Handle feedback submission, e.g., send feedback to server
@@ -47,6 +52,7 @@ const FeedbackModal = ({ project, onClose }) => {
             <textarea
               id="description"
               className="mt-1 px-3 py-2 border rounded-md w-full"
+              // @ts-ignore
               rows="3"
               value={description}
               onChange={(e) => setDescription(e.target.value)}

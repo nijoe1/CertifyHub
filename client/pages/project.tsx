@@ -25,7 +25,7 @@ const ProjectPage = () => {
   // Fetch hypercert information based on the claimID from the router query
   useEffect(() => {
     const claimID = router?.query?.id;
-    async function fetchHypercerts(claimID) {
+    async function fetchHypercerts(claimID:any) {
       const claimTokens = await getClaims(claimID);
       const metadataUri = claimTokens?.claimTokens[0]?.claim.uri;
       const metadata = await getData(metadataUri);
@@ -109,7 +109,7 @@ const ProjectPage = () => {
 
   const [activeTab, setActiveTab] = useState("received-fundings");
 
-  const handleTabChange = (tabValue) => {
+  const handleTabChange = (tabValue:any) => {
     setActiveTab(tabValue);
   };
 

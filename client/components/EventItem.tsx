@@ -1,7 +1,14 @@
 import React from 'react';
 import Link from 'next/link';
 
-const EventItem = ({name, description, eventID, image }) => {
+type EventProps = {
+  name: string; // Specify the type of the 'text' prop
+  description: string;
+  eventID: string;
+  image: string;
+};
+
+const EventItem : React.FC<EventProps> =  ({name, description, eventID, image }) => {
   return (
     <div className="bg-blue-100 p-4 rounded mb-4">
       <div className="flex items-center justify-between">

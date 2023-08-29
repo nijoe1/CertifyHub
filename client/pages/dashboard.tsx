@@ -10,7 +10,11 @@ import { fetchEnsName } from '@wagmi/core';
 import { ENS } from '@ensdomains/ensjs'
 import ether from 'ethers';
 
-const UserProfile = ({ profileData }) => {
+type UserProfileProps = {
+  profileData: any; // You should replace 'any' with the actual type of your project
+};
+
+const UserProfile  : React.FC<UserProfileProps> = ({ profileData }) => {
   const { address } = useAccount()
   const [ens, setEns] = useState("")
   useEffect(() => {
@@ -19,7 +23,9 @@ const UserProfile = ({ profileData }) => {
         address: address as `0x{string}`,
       });
       console.log(resolvedAddress)
-      setEns(resolvedAddress?.toString())
+      if(resolvedAddress){
+        setEns(resolvedAddress.toString())
+      }
     }
 
     fetchHypercerts();
@@ -127,7 +133,7 @@ const DashboardPage = () => {
     twitter: "https://twitter.com/johndoe",
   };
 
-  const handleTabChange = (tabValue) => {
+  const handleTabChange = (tabValue:any) => {
     setActiveTab(tabValue);
   };
 

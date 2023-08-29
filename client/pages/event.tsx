@@ -24,7 +24,7 @@ const EventPage = () => {
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
 
-  const handleLeaveFeedback = (project) => {
+  const handleLeaveFeedback = (project:any) => {
     setSelectedProject(project);
     setFeedbackModalOpen(true);
   };

@@ -10,7 +10,7 @@ const origin =
 const Navbar = () => {
   const router = useRouter();
 
-  const handleLinkClick = (href) => {
+  const handleLinkClick = (href:any) => {
     router.push(href);
   };
 

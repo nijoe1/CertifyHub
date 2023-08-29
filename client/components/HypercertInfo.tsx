@@ -1,8 +1,16 @@
-import React from 'react';
-import Badge from './Badge';
-import EthereumAddress from './EthereumAddress';
-
-const HypercertInfo = ({ name, description, contributors }) => {
+import React from "react";
+import Badge from "./Badge";
+import EthereumAddress from "./EthereumAddress";
+type HypercertInfoProps = {
+  name: any; // You should replace 'any' with the actual type of your project
+  description: any; // You should replace 'any' with the actual type of your project
+  contributors: any; // You should replace 'any' with the actual type of your project
+};
+const HypercertInfo: React.FC<HypercertInfoProps> = ({
+  name,
+  description,
+  contributors,
+}) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-4 mb-4 w-1/2">
       <h2 className="text-2xl font-semibold text-blue-600 mb-2">{name}</h2>
@@ -14,9 +22,11 @@ const HypercertInfo = ({ name, description, contributors }) => {
           <Badge text="Impact Scope" />
         </div>
         <div>
-          {contributors.map((contributor, index) => (
-            <EthereumAddress key={index} address={contributor} />
-          ))}
+          {contributors.map(
+            (contributor: any, index: React.Key | null | undefined) => (
+              <EthereumAddress key={index} address={contributor} />
+            )
+          )}
         </div>
       </div>
     </div>
@@ -25,9 +35,9 @@ const HypercertInfo = ({ name, description, contributors }) => {
 
 // Dummy data
 const dummyData = {
-  name: 'Hypercert Example',
-  description: 'This is an example hypercert description.',
-  contributors: ['0xAddress1', '0xAddress2', '0xAddress3'],
+  name: "Hypercert Example",
+  description: "This is an example hypercert description.",
+  contributors: ["0xAddress1", "0xAddress2", "0xAddress3"],
 };
 
 export default function HypercertInfoWithDummyData() {

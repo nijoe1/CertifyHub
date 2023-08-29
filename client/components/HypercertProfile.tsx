@@ -2,21 +2,39 @@ import React from "react";
 import { Button } from "@material-tailwind/react";
 import EthereumAddress from "./EthereumAddress";
 
-const HypercertProfile = ({ hypercert }) => {
-  const { name, description, image, contributors, external_url, hypercert: hc } = hypercert;
+type Hypercert = {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  external_url: string;
+  hypercert: {
+    contributors: {
+      value: string[];
+    };
+    categories: string[];
+  };
+};
+
+type HypercertProfileProps = {
+  hypercert: Hypercert;
+};
+
+const HypercertProfile: React.FC<HypercertProfileProps> = ({ hypercert }) => {
+  const { name, description, image, external_url, hypercert: hc } = hypercert;
 
   return (
     <div className="grid place-items-center py-8 overflow-y-auto">
       <div className="w-3/4 max-w-xl text-center">
         {/* Image */}
-        <div className="flex justify-center items-center mb-4" >
+        <div className="flex justify-center items-center mb-4">
           <img
             src={image}
             alt="Hypercert Image"
             className="w-1/2 h-auto" // Set the width to 50% and height auto
             style={{
-              maxWidth: '50%',   // Optional: You can use inline style to set max width
-              height: 'auto',    // Optional: You can set height to auto
+              maxWidth: "50%", // Optional: You can use inline style to set max width
+              height: "auto", // Optional: You can set height to auto
             }}
           />
         </div>
@@ -32,7 +50,6 @@ const HypercertProfile = ({ hypercert }) => {
         {/* Contributors */}
         <div className="grid gap-2 mt-4">
           {hc.contributors.value.slice(0, 4).map((contributor, index) => (
-            
             <div key={index} className="flex justify-center">
               <span className="text-gray-500 mr-1">Founder:</span>
               <EthereumAddress address={contributor} />
@@ -48,10 +65,16 @@ const HypercertProfile = ({ hypercert }) => {
 
         {/* Action Buttons */}
         <div className="flex justify-center gap-4 mt-4">
-          <Button color="blue" ripple="light" onClick={() => console.log("Provide Feedback clicked")}>
+          <Button
+            color="blue"
+            onClick={() => console.log("Provide Feedback clicked")}
+          >
             Provide Feedback
           </Button>
-          <Button color="green" ripple="light" onClick={() => console.log("Fund Project clicked")}>
+          <Button
+            color="green"
+            onClick={() => console.log("Fund Project clicked")}
+          >
             Fund Project!
           </Button>
         </div>

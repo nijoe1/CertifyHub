@@ -7,8 +7,11 @@ import {
   TabPanel,
 } from "@material-tailwind/react";
 import { UserCircleIcon } from "@heroicons/react/outline";
+type TabsWithIconProps = {
+  activeTab: any; // You should replace 'any' with the actual type of your project
+  handleTabChange: () => void; // You should replace 'any' with the actual type of your project
 
-const TabsWithIcon = ({ activeTab, handleTabChange }) => {
+};const TabsWithIcon : React.FC<TabsWithIconProps> = ({ activeTab, handleTabChange }) => {
   const data = [
     {
       label: "Dashboard",

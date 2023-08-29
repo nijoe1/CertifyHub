@@ -13,8 +13,37 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useRouter } from "next/router";
 
-export default function HypercertCard({ hypercert, onDetailsClick }) {
-  const { id, name, description, image, external_url, hypercert: hc } = hypercert;
+type Hypercert = {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  external_url: string;
+  hypercert: {
+    contributors: {
+      value: string[];
+    };
+    categories: string[];
+  };
+};
+
+type HypercertCardProps = {
+  hypercert: Hypercert;
+  onDetailsClick: () => void;
+};
+
+export default function HypercertCard({
+  hypercert,
+  onDetailsClick,
+}: HypercertCardProps) {
+  const {
+    id,
+    name,
+    description,
+    image,
+    external_url,
+    hypercert: hc,
+  } = hypercert;
   const router = useRouter();
 
   const maxDescriptionLength = 40;
@@ -32,7 +61,9 @@ export default function HypercertCard({ hypercert, onDetailsClick }) {
   const badgesPerSlide = 3;
 
   const sliderSettings = {
-    dots: Math.ceil(hc.contributors.value.length / badgesPerSlide),
+    // dots should be a boolean (true or false)
+    // If you want to show dots, set it to true; otherwise, omit it
+    dots: true, // or false
     infinite: false,
     speed: 300,
     slidesToShow: 1,
@@ -40,7 +71,7 @@ export default function HypercertCard({ hypercert, onDetailsClick }) {
     variableWidth: true,
   };
 
-  const uniqueCategories = Array.from(new Set(hc.categories.map((c) => c )));
+  const uniqueCategories = Array.from(new Set(hc.categories.map((c) => c)));
   const uniqueContributors = Array.from(new Set(hc.contributors.value));
 
   return (
@@ -58,9 +89,9 @@ export default function HypercertCard({ hypercert, onDetailsClick }) {
         <strong>Description:</strong>
         <Typography color="gray">{truncatedDescription}</Typography>
         <div className="mt-2 flex items-center">
-  <strong className="mr-2">Rating:</strong>
-  <Rating value={4} size="sm" readonly className="flex space-x-1" />
-</div>
+          <strong className="mr-2">Rating:</strong>
+          <Rating value={4} readonly className="flex space-x-1" />
+        </div>
         <div className="mt-2">
           <Typography>
             <strong>Contributors:</strong>
@@ -71,6 +102,7 @@ export default function HypercertCard({ hypercert, onDetailsClick }) {
                 key={index}
                 address={contributor}
                 className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
+                // @ts-ignore
                 style={{
                   width: `${badgeWidth}px`,
                   marginRight: "8px", // Add space between badges
@@ -112,7 +144,7 @@ export default function HypercertCard({ hypercert, onDetailsClick }) {
           onClick={handleDetailsClick}
           className="mt-2 w-full"
           color="blue"
-          ripple="light"
+          ripple // Enable ripple effect by setting it to true
         >
           Check More
         </Button>

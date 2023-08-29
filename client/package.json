@@ -39,5 +39,8 @@
 		"typescript": "5.0.4",
 		"use-debounce": "^9.0.4",
 		"wagmi": "^1.0.8"
+	},
+	"devDependencies": {
+		"@types/react-slick": "^0.23.10"
 	}
 }

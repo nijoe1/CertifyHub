@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 type AttestationFormProps = {
   onClose: () => void; // Specify the type of onClose prop
 };
@@ -6,10 +6,10 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onClose }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    file: null,
+    file: undefined, // Initialize with undefined
   });
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -17,26 +17,26 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onClose }) => {
     }));
   };
 
-  const handleFileChange = (event) => {
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    // @ts-ignore
     const file = event.target.files[0];
+    // @ts-ignore
     setFormData((prevData) => ({
       ...prevData,
-      file,
+      file: file || prevData.file, // Update the file property conditionally
     }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    // Create a JSON object with the form data
     const attestationData = {
       name: formData.name,
       description: formData.description,
       // @ts-ignore
-      file: formData?.file ? formData?.file.name : '',
+      file: formData?.file ? formData.file.name : '',
     };
-    // Do something with attestationData (e.g., store it, send it to a server, etc.)
     console.log('Attestation Data:', attestationData);
-    // Close the modal
     onClose();
   };
 
@@ -63,7 +63,7 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onClose }) => {
             <label htmlFor="description" className="block font-medium mb-1">
               Description
             </label>
-            <textarea
+            <input
               id="description"
               name="description"
               value={formData.description}

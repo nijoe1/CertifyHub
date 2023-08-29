@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Navbar } from '@/components/layout';
-import Footer from '@/components/Footer';
+import React, { useEffect, useState } from "react";
+import { Navbar } from "@/components/layout";
+import Footer from "@/components/Footer";
 import HypercertCard from "@/components/HypercertCard";
 import {
   getData,
@@ -20,11 +20,11 @@ const Projects = () => {
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [categories, setCategories] = useState([]);
 
-  const handleSearchInputChange = (event) => {
+  const handleSearchInputChange = (event: any) => {
     setSearchInput(event.target.value);
   };
 
-  const handleCategoryChange = (value) => {
+  const handleCategoryChange = (value: any) => {
     setSelectedCategory(value);
   };
 
@@ -44,14 +44,16 @@ const Projects = () => {
         const metadataUri = claimTokens?.claimTokens[0]?.claim?.uri;
         const metadata = await getData(metadataUri);
         metadata.hypercert.categories = Hypercert?.categories.map(
-          (item) => item.category
+          (item: any) => item.category
         );
         metadata.id = id ? id : undefined;
 
         hypercertList.push(metadata);
       }
-
-      setHypercerts(hypercertList);
+      if (hypercertList) {
+        // @ts-ignore
+        setHypercerts(hypercertList);
+      }
     }
 
     fetchHypercerts();
@@ -85,12 +87,18 @@ const Projects = () => {
               value={selectedCategory}
               onChange={handleCategoryChange}
               className="w-full md:w-96 py-5"
-              optionClasses={{
-                hover: "cursor-pointer", // Add cursor pointer on hover
-              }}
             >
               {categoryOptions.map((option) => (
-                <Option key={option.value} value={option.value}className="hover:bg-blue-200 text-center">
+                <Option
+                  key={option.value}
+                  value={option.value}
+                  // @ts-ignore
+                  style={{
+                    cursor: "pointer",
+                    // @ts-ignore
+                    ":hover": { backgroundColor: "#e2e8f0" },
+                  }}
+                >
                   {option.label}
                 </Option>
               ))}
@@ -101,8 +109,10 @@ const Projects = () => {
         <div className="grid grid-cols-1 mx-5 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-50">
           {hypercerts.map((hypercert) => (
             <HypercertCard
-              key={hypercert?.id}
+              // @ts-ignore
+              key={hypercert.id}
               hypercert={hypercert}
+              // @ts-ignore
               onDetailsClick={undefined}
             />
           ))}

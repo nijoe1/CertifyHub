@@ -7,7 +7,6 @@ import Footer from "@/components/Footer"; // Import the Footer component
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/utils/config";
 import { Inter } from "next/font/google";
 import Link from "next/link";
-import ClaimTokensComponent from "../components/claimTokens";
 import { useAccount } from "wagmi";
 const inter = Inter({ subsets: ["latin"] });
 
