@@ -35,4 +35,9 @@ interface ITableland {
         uint256 claimID,
         address splitterAddress
     ) external;
+
+    function registerEvents(        
+        uint256 claimID,
+        string[] memory events
+    )external;
 }

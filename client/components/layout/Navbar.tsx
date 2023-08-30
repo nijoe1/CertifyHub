@@ -44,6 +44,12 @@ const Navbar = () => {
               Projects
             </button>
             <button
+              onClick={() => handleLinkClick("/Funders")}
+              className="text-black font-bold hover:text-gray-700 hover:bg-white hover:rounded-md py-2 px-6 transition-colors"
+            >
+              Funders
+            </button>
+            <button
               onClick={() => handleLinkClick("/register")}
               className="text-black font-bold hover:text-gray-700 hover:bg-white hover:rounded-md py-2 px-6 transition-colors"
             >

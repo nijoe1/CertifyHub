@@ -26,10 +26,10 @@ contract TablelandVerifiers is Ownable {
     string private constant COMPANY_SCHEMA = "company text, image text, description text, admin text";
         
     string private constant EVENT_TABLE_PREFIX = "event";
-    string private constant EVENT_SCHEMA = "company text, eventID text, cid text, startTime text, endTime text"; 
+    string private constant EVENT_SCHEMA = "company text, eventID text, cid text, startsAt text, endsAt text"; 
 
     string private constant EVENT_VERIFIERS_TABLE_PREFIX = "event_verifiers";
-    string private constant EVENT_VERIFIERS_SCHEMA = "eventID text, verifier text"; 
+    string private constant EVENT_VERIFIERS_SCHEMA = "eventID text, verifierAddress text"; 
 
     constructor() {
         tablelandContract = TablelandDeployments.get();
@@ -79,7 +79,6 @@ contract TablelandVerifiers is Ownable {
             );
     }
 
-
     function insertEvent(
         string memory company,
         string memory cid,
@@ -94,13 +93,13 @@ contract TablelandVerifiers is Ownable {
                 SQLHelpers.toInsert(
                     EVENT_TABLE_PREFIX,
                     tableIDs[1],
-                    "company, eventID, cid, startTime, endTime",
+                    "company, eventID, cid, startsAt, endsAt",
                     string.concat(
                         SQLHelpers.quote(company),
                         ",",
-                        SQLHelpers.quote(cid),
-                        ",",                     
                         SQLHelpers.quote(eventID),
+                        ",",                     
+                        SQLHelpers.quote(cid),
                         ",",                        
                         SQLHelpers.quote(Strings.toString(block.timestamp)),
                         ",",                        
@@ -114,7 +113,7 @@ contract TablelandVerifiers is Ownable {
                     SQLHelpers.toInsert(
                         EVENT_VERIFIERS_TABLE_PREFIX,
                         tableIDs[2],
-                        "eventID text, verifier text",
+                        "eventID, verifierAddress",
                         string.concat(
                             SQLHelpers.quote(eventID),
                             ",",

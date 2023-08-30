@@ -15,16 +15,21 @@ contract VerifiersRegistry is ERC1155, AccessControl {
 
   EnumerableSet.Bytes32Set RegisteredVerifierRoles;
 
+  EnumerableSet.Bytes32Set RegisteredCompanies;
+
+
   // Constructor
   constructor(ITablelandVerifiers _indexerContract) ERC1155("") {
     _grantRole(REGISTRAR_ROLE, msg.sender);
     indexerContract = _indexerContract;
   }
 
-  function registerCompany(string memory company,string memory image,string memory description, address admin) external onlyRole(REGISTRAR_ROLE){
-      bytes32 ADMIN_ROLE = keccak256(abi.encode(company,"ADMIN"));  
-      _grantRole(ADMIN_ROLE, admin);
-      indexerContract.insertCompany(company, image, description, admin);
+  function registerCompany(string memory company,string memory image,string memory description, address admin) external{
+    require(!RegisteredCompanies.contains(keccak256(abi.encode(company))));
+    RegisteredCompanies.add(keccak256(abi.encode(company)));
+    bytes32 ADMIN_ROLE = keccak256(abi.encode(company,admin));  
+    _grantRole(ADMIN_ROLE, admin);
+    indexerContract.insertCompany(company, image, description, admin);
   }
 
   function registerEvent(string memory company, string memory eventType, string memory eventName, string memory cid, address[] memory eventVerifiers, uint256 duration) external onlyRole(getCompanyAdminRole(company)){
@@ -85,8 +90,8 @@ contract VerifiersRegistry is ERC1155, AccessControl {
           interfaceId == type(AccessControl).interfaceId;
   }
 
-  function getCompanyAdminRole(string memory company)internal pure returns(bytes32){
-    return keccak256(abi.encode(company,"ADMIN"));
+  function getCompanyAdminRole(string memory company)internal view returns(bytes32){
+    return keccak256(abi.encode(company,tx.origin));
   }
 
 }

@@ -139,7 +139,6 @@ contract CertifyHub is SchemaResolver {
 
         indexerContract.insertSplitter(claimID, project.splitAddress);
     }
-
     // VIEW FUNCTIONS
 
     /**

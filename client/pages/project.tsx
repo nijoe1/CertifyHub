@@ -14,15 +14,18 @@ import ReceivedFundingsItem from "@/components/ReceivedFundingsItem";
 import ProjectUpdatesItem from "@/components/ProjectUpdatesItem";
 import ProjectFeedbackItem from "@/components/ProjectFeedbackItem";
 import EventItem from "@/components/EventItem";
-import { getData, getClaims,getUserHypercerts } from "../lib/operator/index";
+import { getData, getClaims,getUserHypercerts,getClaimEvents } from "../lib/operator/index";
 import { useRouter } from 'next/router';
 import Link from 'next/link'; // Import the Link component
 import { useAccount } from "wagmi";
+import EventCard from "@/components/EventCard";
 
 const ProjectPage = () => {
   const router = useRouter();
   const [hypercertData, setHypercertData] = useState(null);
   const [isOwner, setIsOwner] = useState(false)
+  const [eventsMetadata, setEventsMetadata] = useState([])
+
   const {address} = useAccount()
 
   // Fetch hypercert information based on the claimID from the router query
@@ -42,6 +45,18 @@ const ProjectPage = () => {
           }
         }
       }
+      // @ts-ignore
+      let id = await router?.query?.id?.replace("0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-","")
+      let registeredEvents = await getClaimEvents(id)
+      let temp = []
+      for(const event of registeredEvents){
+        let metadata = await getData(event.cid)
+        metadata.eventID = event.eventID
+        temp.push(metadata)
+      }
+      console.log(temp)
+      setEventsMetadata(temp)
+
 
       const metadataUri = claimTokens?.claimTokens[0]?.claim.uri;
       const metadata = await getData(metadataUri);
@@ -116,13 +131,6 @@ const ProjectPage = () => {
     // Add more project feedback data
   ];
 
-  const eventDetails = {
-    name: "Event Name",
-    description: "This is event description.",
-    eventID: "eventID123",
-    image: "event_image.jpg",
-  };
-
   const [activeTab, setActiveTab] = useState("received-fundings");
 
   const handleTabChange = (tabValue:any) => {
@@ -192,12 +200,17 @@ const ProjectPage = () => {
                       ))}
                     </div>
                   )}
-                  {value === "registered-events" && (
-                    <div>
-                      <EventItem {...eventDetails} />
-                      {/* Add more EventItem components for each registered event */}
-                    </div>
-                  )}
+                  {value === "registered-events" && eventsMetadata.length > 0  &&(
+                    
+                      <div className="flex flex-col items-center">
+                        <h2 className="text-xl font-semibold mb-4">Events</h2>
+                        <div className="w-full flex flex-wrap justify-center">
+                          {eventsMetadata.map((event) => (
+                            <EventCard key={event.eventID} event={event} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                 </div>
               </TabPanel>
             ))}

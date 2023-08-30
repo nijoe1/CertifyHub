@@ -10,91 +10,101 @@ import {
 } from "@material-tailwind/react";
 import { UserCircleIcon } from "@heroicons/react/outline";
 import AttestationForm from "@/components/AttestationForm";
+import UserProfile from "@/components/UserProfile";
 import Link from "next/link"; // Import the Link component
 import { useAccount } from "wagmi";
 import { fetchEnsName } from "@wagmi/core";
-import { ENS } from "@ensdomains/ensjs";
-import { providers } from "ethers";
+import {
+  getProfile,
+  getUserProjects,
+  getRegisteredProjects,
+  getData,
+  getClaims,
+} from "@/lib/operator/index";
 
-type UserProfileProps = {
-  profileData: any; // You should replace 'any' with the actual type of your project
-};
 
-
-
-const UserProfile: React.FC<UserProfileProps> = ({ profileData }) => {
+const DashboardPage = () => {
+  const [hypercerts, setHypercerts] = useState();
   const { address } = useAccount();
-  const [ens, setEns] = useState("");
-  const _ens = new ENS();
-  // const transactions  = {
-  //    textSet: resolver.contract.methods.setText(node, "url", "https://ethereum.org/").encodeABI();
-  // }
-  const provider = new providers.JsonRpcProvider("RPC_URL_HERE");
+
+  function createPaddedString(inputString, desiredLength) {
+    if (inputString.length >= desiredLength) {
+      return inputString.slice(0, desiredLength);
+    } else {
+      const padding = ' '.repeat(desiredLength - inputString.length);
+      return inputString + padding;
+    }
+  }
+
   useEffect(() => {
     async function fetchHypercerts() {
-      await _ens.setProvider(provider);
-
       let resolvedAddress = await fetchEnsName({
         address: address as `0x{string}`,
       });
-      console.log(resolvedAddress);
-      if (resolvedAddress) {
-        setEns(resolvedAddress.toString());
+      if (!hypercerts) {
+        const registeredProjects = await getRegisteredProjects(
+          "All Categories"
+        );
+
+        let tokens = await getUserProjects(address);
+        let filteredClaimIds = registeredProjects.map(
+          (project: any) =>
+            "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-" + project.claimID
+        );
+
+        filteredClaimIds.categories = registeredProjects.map(
+          (project: any) => project.categories
+        );
+
+        const filteredClaimIdsInData = filteredClaimIds.filter((claimId: any) =>
+          tokens.claimTokens.some((token: any) => token.claim.id === claimId)
+        );
+
+        const combinedProjects = filteredClaimIdsInData.map((userProject) => {
+          const matchingRegisteredProject = filteredClaimIds.find(
+            (regProject) => regProject.claimID == userProject
+          );
+          console.log(matchingRegisteredProject);
+
+          if (!matchingRegisteredProject) {
+            return {
+              claimID: userProject,
+              categories: [], // If no matching project found, initialize with empty categories
+            };
+          }
+
+          return {
+            claimID: userProject,
+            categories: matchingRegisteredProject.categories.map((category) =>
+              category.trim()
+            ),
+          };
+        });
+
+        console.log(combinedProjects);
+
+        const hypercertList = [];
+
+        for (const id of combinedProjects) {
+          const claimTokens = await getClaims(id.claimID);
+          const metadataUri = claimTokens?.claimTokens[0]?.claim?.uri;
+          const metadata = await getData(metadataUri);
+          console.log(metadata);
+
+          metadata.hypercert.categories = id?.categories.map(
+            (item: any) => item.category
+          );
+          metadata.id = id ? id : undefined;
+          hypercertList.push(metadata);
+        }
+        // @ts-ignore
+        setHypercerts(hypercertList);
       }
     }
 
     fetchHypercerts();
-  }, []);
+  }, [hypercerts]);
 
-  let hasENS = false;
-  return (
-    <div className="flex items-center justify-center p-4">
-      <div className="bg-gray-100 p-4 rounded-lg shadow-md w-80">
-        <div className="flex items-center justify-center mb-4">
-          <img
-            src={profileData.image}
-            alt="User Profile"
-            className="w-40 h-40 rounded-full"
-          />
-        </div>
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold mb-1">{profileData.name}</h2>
-          <p className="text-gray-600 mb-2">{profileData.title}</p>
-          <div className="flex justify-center space-x-2">
-            <a
-              href={profileData.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
-            >
-              GitHub
-            </a>
-            <a
-              href={profileData.twitter}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
-            >
-              Twitter
-            </a>
-          </div>
-          <div className="flex justify-center space-x-2">
-            {hasENS ? (
-              <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
-                Update Profile
-              </button>
-            ) : (
-              <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
-                RegisterENS
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-const DashboardPage = () => {
   const data = [
     {
       label: "Projects",
@@ -124,33 +134,6 @@ const DashboardPage = () => {
 
   const [activeTab, setActiveTab] = useState("projects");
   const [attestModalOpen, setAttestModalOpen] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    title: "Web Developer",
-    image:
-      "https://gateway.lighthouse.storage/ipfs/QmYuugRzTzN1k6DEFRrNj27pMCah2z1AAJnvNNmnPQJuAY",
-    github: "https://github.com/johndoe",
-    twitter: "https://twitter.com/johndoe",
-  });
-
-  const userHypercerts = [
-    {
-      id: 1,
-      name: "Project 1",
-      description: "This is the description of Project 1.",
-      hypercert: {
-        categories: [{ category: "Category 1" }, { category: "Category 2" }],
-      },
-    },
-    {
-      id: 2,
-      name: "Project 2",
-      description: "This is the description of Project 2.",
-      hypercert: {
-        categories: [{ category: "Category 3" }, { category: "Category 4" }],
-      },
-    },
-  ];
 
   const handleTabChange = (tabValue: any) => {
     setActiveTab(tabValue);
@@ -164,7 +147,7 @@ const DashboardPage = () => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div className="flex items-center justify-center p-4">
-        <UserProfile profileData={profileData} />
+        <UserProfile />
       </div>
       <div className="flex-grow flex items-center justify-center">
         {" "}
@@ -174,7 +157,7 @@ const DashboardPage = () => {
             Dashboard
           </h1>
 
-          <Tabs value="my-projects" className="max-w-[40rem]">
+          <Tabs value="projects" className="max-w-[40rem]">
             <TabsHeader
               className="bg-transparent"
               indicatorProps={{
@@ -188,18 +171,23 @@ const DashboardPage = () => {
               ))}
             </TabsHeader>
             <TabsBody>
-              <TabPanel value="my-projects">
+              <TabPanel value="projects">
                 <h2 className="text-lg font-semibold mb-2">My Projects</h2>
-                {userHypercerts.map((hypercert) => (
+
+                {hypercerts?.map((hypercert) => (
+            
                   <div
                     key={hypercert.id}
                     className="bg-blue-100 p-4 rounded mb-4"
                   >
+                    <Link href={`/project?id=${hypercert.id.claimID}`}>
+                  
                     <h3 className="text-md font-semibold mb-1">
                       {hypercert.name}
                     </h3>
+                    </Link>
                     <p className="text-sm text-gray-600 mb-2">
-                      {hypercert.description}
+                      {hypercert.description.slice(0, 50) + '...'}
                     </p>
                     <div className="flex space-x-2">
                       {hypercert.hypercert.categories.map(

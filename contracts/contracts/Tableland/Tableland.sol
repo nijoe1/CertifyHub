@@ -132,6 +132,27 @@ contract Tableland is Ownable {
         }
     }
 
+    function registerEvents(        
+        uint256 claimID,
+        string[] memory events
+    ) public onlyOwner{
+        for(uint256 i = 0; i < events.length; i++){
+            mutate(
+                    tableIDs[4],
+                    SQLHelpers.toInsert(
+                        HYPERCERT_EVENTS_TABLE_PREFIX,
+                        tableIDs[4],
+                        "claimID, eventID",
+                        string.concat(
+                            SQLHelpers.quote(Strings.toString(claimID)),
+                            ",",
+                            SQLHelpers.quote(events[i])
+                        )
+                    )
+            );
+        }
+    }
+
     function insertAttestation(
         uint256 claimID,
         address verifier,
