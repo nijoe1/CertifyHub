@@ -54,6 +54,7 @@ const ProjectPage = () => {
         temp.push(metadata)
       }
       console.log(temp)
+      // @ts-ignore
       setEventsMetadata(temp)
 
 
@@ -205,7 +206,8 @@ const ProjectPage = () => {
                         <h2 className="text-xl font-semibold mb-4">Events</h2>
                         <div className="w-full flex flex-wrap justify-center">
                           {eventsMetadata.map((event) => (
-                            <EventCard key={event.eventID} event={event} />
+                            // @ts-ignore
+                            <EventCard key={event?.eventID} event={event} />
                           ))}
                         </div>
                       </div>

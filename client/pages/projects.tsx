@@ -80,6 +80,7 @@ const Projects = () => {
         <div className="flex flex-col md:flex-row md:items-center ml-8 mr-8 mb-8">
           <Select
             value={selectedCategory}
+            // @ts-ignore
             onChange={(value) => handleCategoryChange(value)}
             animate={{
               mount: { y: 0 },

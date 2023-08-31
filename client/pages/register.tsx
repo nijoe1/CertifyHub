@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 import Tooltip from "@/components/Tooltip";
 import HypercertCard from "@/components/HypercertCard";
 import ChosenCategoriesBox from "@/components/ChosenCategoriesBox";
-import { getData, getClaims,getEvents } from "../lib/operator/index";
+import { getData, getClaims, getEvents } from "../lib/operator/index";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import { CONTRACTS } from "@/constants/contracts";
 import { Select, Option } from "@material-tailwind/react"; // Import the Select and Option components
@@ -16,7 +16,7 @@ const RegisterPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [registeredCategories, setRegisteredCategories] = useState([]);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
-  const [eventOptions,setEventOptions] = useState([])
+  const [eventOptions, setEventOptions] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState<string>("");
   const [registeredEvents, setRegisteredEvents] = useState([]);
   const [showEventForm, setShowEventForm] = useState(false);
@@ -27,12 +27,7 @@ const RegisterPage = () => {
     address: CONTRACTS.fundTheCommons[5].contract,
     abi: CONTRACTS.fundTheCommons[5].abi,
     functionName: "registerHypercertProject",
-    args: [
-      hypercertID,
-      fractionIDs,
-      registeredCategories,
-      registeredEvents,
-    ],
+    args: [hypercertID, fractionIDs, registeredCategories, registeredEvents],
   });
   const { write } = useContractWrite(config);
 
@@ -42,18 +37,18 @@ const RegisterPage = () => {
         "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-" + claimID.toString();
       const claimTokens = await getClaims(id);
       let fractions = [];
-      let events = await getEvents()
-      const options = []
-      for(const event of events){
-        let metadata = await getData(event.cid)
+      let events = await getEvents();
+      const options = [];
+      for (const event of events) {
+        let metadata = await getData(event.cid);
         options.push({
           value: event.eventID,
           label: `${event.company}/${metadata.name}`,
-        })
+        });
       }
-
+      // @ts-ignore
       setEventOptions(options);
-      console.log(events)
+      console.log(events);
       if (claimTokens.claimTokens.length > 0) {
         for (const fraction of claimTokens.claimTokens) {
           if (fraction?.tokenID) {
@@ -79,7 +74,7 @@ const RegisterPage = () => {
     if (hypercertID) {
       fetchHypercert(hypercertID);
       setShowCategoryForm(true); // Enable the categories view on successful fetch
-      setShowEventForm(true)
+      setShowEventForm(true);
       setError(null); // Clear any previous error
     } else {
       setShowCategoryForm(false); // Disable the categories view when no claimID is provided
@@ -88,14 +83,20 @@ const RegisterPage = () => {
   }, [hypercertID, registeredCategories]);
 
   const handleAddCategory = () => {
+        // @ts-ignore
+
     if (selectedCategory && !registeredCategories.includes(selectedCategory)) {
+    // @ts-ignore
+
       setRegisteredCategories([...registeredCategories, selectedCategory]);
       setSelectedCategory(""); // Clear selected category after adding
     }
   };
 
   const handleAddEvent = () => {
+    // @ts-ignore
     if (selectedEvent && !registeredCategories.includes(selectedEvent)) {
+      // @ts-ignore
       setRegisteredEvents([...registeredEvents, selectedEvent]);
       setSelectedCategory(""); // Clear selected category after adding
     }
@@ -109,7 +110,6 @@ const RegisterPage = () => {
     { value: "DAOs", label: "DAOs" },
   ];
 
-    
   return (
     <>
       <Navbar />
@@ -127,17 +127,24 @@ const RegisterPage = () => {
               value={hypercertID}
               onChange={(e) => setHypercertID(e.target.value)}
             />
-           {!showCategoryForm &&  <button
-              className="bg-blue-500 text-white px-3 py-2 mt-3 rounded"
-              onClick={() => setHypercertID(hypercertID)}
-            >
-              Import Hypercert
-            </button>}
-            {!showCategoryForm && <Link className="bg-blue-500 text-white px-3 py-2 rounded mt-3 mb-0" href={"https://testnet.hypercerts.org/app/create#name=The%20name%20of%20your%20hypercert&logoUrl=https%3A%2F%2Fi.imgur.com%2FsDQhp3Y.png&bannerUrl=https%3A%2F%2Fi.imgur.com%2FwsM3fWd.jpeg&impactScopes%5B0%5D=all&impactTimeEnd=indefinite&workScopes=your%20project&workTimeStart=2023-01-01&rights%5B0%5D=Public%20Display&backgroundColor=blue&backgroundVectorArt=contours"}>
-              <button>
-                Create Hypercert
+            {!showCategoryForm && (
+              <button
+                className="bg-blue-500 text-white px-3 py-2 mt-3 rounded"
+                onClick={() => setHypercertID(hypercertID)}
+              >
+                Import Hypercert
               </button>
-            </Link>}
+            )}
+            {!showCategoryForm && (
+              <Link
+                className="bg-blue-500 text-white px-3 py-2 rounded mt-3 mb-0"
+                href={
+                  "https://testnet.hypercerts.org/app/create#name=The%20name%20of%20your%20hypercert&logoUrl=https%3A%2F%2Fi.imgur.com%2FsDQhp3Y.png&bannerUrl=https%3A%2F%2Fi.imgur.com%2FwsM3fWd.jpeg&impactScopes%5B0%5D=all&impactTimeEnd=indefinite&workScopes=your%20project&workTimeStart=2023-01-01&rights%5B0%5D=Public%20Display&backgroundColor=blue&backgroundVectorArt=contours"
+                }
+              >
+                <button>Create Hypercert</button>
+              </Link>
+            )}
             <Tooltip text="Click this button to import a hypercert.">
               {/* Children elements go here */}
             </Tooltip>{" "}
@@ -157,6 +164,7 @@ const RegisterPage = () => {
             <div className="mt-4 mb-4 flex items-center">
               <Select
                 value={selectedCategory}
+                // @ts-ignore
                 onChange={(value) => setSelectedCategory(value)}
                 className=" md:w-69 py-5" // Adjust width as needed
               >
@@ -178,11 +186,13 @@ const RegisterPage = () => {
             <div className="mt-4 mb-4 flex items-center">
               <Select
                 value={selectedCategory}
-                onChange={(value) => setSelectedEvent(value)}
+                onChange={(value: any) => setSelectedEvent(value)}
                 className=" md:w-69 py-5" // Adjust width as needed
               >
                 {eventOptions.map((option) => (
+                  // @ts-ignore
                   <Option key={option.value} value={option.value}>
+                    {/*  @ts-ignore */}
                     {option.label}
                   </Option>
                 ))}
@@ -199,13 +209,19 @@ const RegisterPage = () => {
           {/* Display Chosen Categories */}
           {registeredCategories.length > 0 && (
             <div className="mb-4">
-              <ChosenCategoriesBox name="Choosen Categories: "chosenCategories={registeredCategories} />
+              <ChosenCategoriesBox
+                name="Choosen Categories: "
+                chosenCategories={registeredCategories}
+              />
             </div>
           )}
           {/* Display Chosen Categories */}
           {registeredEvents.length > 0 && (
             <div className="mb-4">
-              <ChosenCategoriesBox name="Choosen Events: "chosenCategories={registeredEvents} />
+              <ChosenCategoriesBox
+                name="Choosen Events: "
+                chosenCategories={registeredEvents}
+              />
             </div>
           )}
 

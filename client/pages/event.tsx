@@ -15,9 +15,9 @@ import {
 const EventPage = () => {
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-  const [eventData, setEventData] = useState(undefined);
-  const [projects, setProjects] = useState([]);
-  const [hypercerts, setHypercerts] = useState([]);
+  const [eventData, setEventData] = useState<any>(undefined);
+  const [projects, setProjects] = useState<string[]>([]);
+  const [hypercerts, setHypercerts] = useState<any>([]);
 
   const router = useRouter();
 
@@ -44,9 +44,8 @@ const EventPage = () => {
       let temp = [];
       for (const project of EventProjects) {
         temp.push(project.claimID);
-      }
+      }                    
 
-      /* @ts-ignore */
       setProjects(temp);
       console.log(projects);
       if (hypercerts.length == 0) {
@@ -82,8 +81,6 @@ const EventPage = () => {
           <div className="bg-gray-100 p-4 rounded-lg shadow-md w-80 text-center">
             <div className="flex items-center justify-center mb-4">
               <img
-                                  {/* @ts-ignore */}
-
                 src={`data:image/png;base64,${eventData.fileBase64}`}
                 alt="Event Image"
                 className="w-24 h-24 rounded-full"
@@ -91,20 +88,12 @@ const EventPage = () => {
             </div>
             <div>
               <h2 className="text-xl font-semibold mb-1">
-                                    {/* @ts-ignore */}
-
                 name: {eventData.name}
               </h2>
               <p className="text-gray-600 mb-2">
-                                    {/* @ts-ignore */}
-
                 description: {eventData.description}
               </p>
-                                  {/* @ts-ignore */}
-
               <p className="text-gray-600 mb-2">eventHost: {eventData.host}</p>
-                                  {/* @ts-ignore */}
-
               <p className="text-gray-600 mb-2">type: {eventData.type}</p>
             </div>
             <div className="flex justify-center space-x-2 mt-4">
@@ -130,7 +119,7 @@ const EventPage = () => {
           <TabsBody>
             <TabPanel value="projects">
               {hypercerts.length > 0 ? (
-                hypercerts.map((hypercert) => (
+                hypercerts.map((hypercert:any) => (
                   <div
                     key={hypercert.id}
                     className="bg-blue-100 p-4 rounded mb-4"
