@@ -29,10 +29,10 @@ const EventCard: React.FC<EventProps> = ({ event }) => {
         >
           Name: {event.name}
         </Typography>
-        <Typography variant="body2" color="blue-gray" className="mb-2">
+        <Typography  color="blue-gray" className="mb-2">
           Type: {event.type}
         </Typography>
-        <Typography variant="body2" color="blue-gray">
+        <Typography  color="blue-gray">
           Description: {event.description}
         </Typography>
       </CardBody>
