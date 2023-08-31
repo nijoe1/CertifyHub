@@ -4,24 +4,22 @@ pragma solidity ^0.8.19;
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import { IERC1155 } from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
-import { SchemaResolver } from "./EAS/SchemaResolver.sol";
 import { IHypercert } from "./interfaces/IHypercert.sol";
-import { IEAS, Attestation } from "./interfaces/IEAS.sol";
-import { ITableland } from "./interfaces/ITableland.sol";
+import { IndexerInterface } from "./interfaces/IndexerInterface.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title CertifyHub
  * @notice A schema resolver that facilitates attestation resolution and incentives distribution.
  */
-contract CertifyHub is SchemaResolver {
+contract CertifyHub  {
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableSet for EnumerableSet.UintSet;
 
     // Contracts and addresses
     IHypercert public hypercertContract;
     IERC1155 public tokenGatedProjectVerifiers;
-    ITableland public indexerContract;
+    IndexerInterface public indexerContract;
     address public thirdwebFactoryAddress;
     address public splitterAddress;
 
@@ -32,11 +30,10 @@ contract CertifyHub is SchemaResolver {
     constructor(
         IERC1155 _tokenGatedProjectVerifiers,
         IHypercert _hypercertContract,
-        ITableland _indexerContract,
+        IndexerInterface _indexerContract,
         address _thirdwebFactoryAddress,
-        address _splitterAddress,
-        IEAS eas
-    ) SchemaResolver(eas) {
+        address _splitterAddress
+    ) {
         hypercertContract = _hypercertContract;
         thirdwebFactoryAddress = _thirdwebFactoryAddress;
         splitterAddress = _splitterAddress;
@@ -141,14 +138,6 @@ contract CertifyHub is SchemaResolver {
     }
     // VIEW FUNCTIONS
 
-    /**
-     * @notice Get the list of registered projects.
-     * @return projects  An array of project IDs.
-     */
-    function getProjects() external view returns (uint256[] memory projects) {
-        projects = Projects.values();
-    }
-
     // ... (internal helper functions)
 
     // INTERNAL HELPER FUNCTIONS
@@ -170,51 +159,14 @@ contract CertifyHub is SchemaResolver {
         return (tokenID & TYPE_MASK != 0) && (tokenID & NF_INDEX_MASK != 0);
     }
 
-
-    // ... (EAS functions)
-
-    /**
-     * @notice Handles attestation by validating the attester and bond value.
-     * @param attestation The attestation data.
-     * @return Boolean indicating the success of the attestation.
-     */
-    function onAttest(
-        Attestation calldata attestation,
-        uint256 
-    ) internal override returns (bool) {
-        (string memory cid, uint256 projectID, uint8 rangeFeedback, bytes32 eventID) =
-            abi.decode(attestation.data, (string, uint256, uint8, bytes32));
-        string memory ID = bytes32ToString(eventID);
-        if (!Projects.contains(projectID)) return false;
-        if (rangeFeedback >= 6) return false;
-        if (tokenGatedProjectVerifiers.balanceOf(attestation.attester, uint256((eventID))) > 0 || eventID == bytes32(0)) {
-            indexerContract.insertAttestation(projectID, attestation.attester, ID, rangeFeedback, cid);
-            return true;
-        }
-        return false;
+    function attestFeedback(uint256 projectID, uint8 projectFeedback, bytes32 eventID, string memory comment) external{
+        require(!Projects.contains(projectID));
+        require(projectFeedback >= 6);
+        require(tokenGatedProjectVerifiers.balanceOf(msg.sender, uint256((eventID))) > 0 || eventID == bytes32(0));
+        indexerContract.insertAttestation(projectID, msg.sender, bytes32ToString(eventID), projectFeedback, comment);
     }
 
-    /**
-     * @notice Checks if an attestation can be revoked based on resolution status and time.
-     * @return Boolean indicating whether the attestation can be revoked.
-     */
-    function onRevoke(
-        Attestation calldata /* attestation */,
-        uint256 /* value */
-    ) internal override pure returns (bool) {
-        return false;
-    }
-
-    /**
-     * @notice Indicates whether the contract is designed to handle incoming payments.
-     * @return True, indicating that the contract can accept payments.
-     */
-    function isPayable() public override pure returns (bool) {
-        return true;
-    }
-
-
-    function insertProjectUpdate(uint256 projectID, string memory cid) external {
+    function attestProjectUpdate(uint256 projectID, string memory cid) external {
         require(projectInfo[projectID].owners.contains(msg.sender));
         indexerContract.insertCompletedTask(projectID, msg.sender, cid);
     }

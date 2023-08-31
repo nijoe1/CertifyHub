@@ -13,34 +13,22 @@ import AttestationForm from "@/components/AttestationForm";
 import UserProfile from "@/components/UserProfile";
 import Link from "next/link"; // Import the Link component
 import { useAccount } from "wagmi";
-import { fetchEnsName } from "@wagmi/core";
 import {
   getProfile,
   getUserProjects,
   getRegisteredProjects,
   getData,
   getClaims,
+  getCompaniesVerifier,
 } from "@/lib/operator/index";
-
 
 const DashboardPage = () => {
   const [hypercerts, setHypercerts] = useState();
+  const [verifierCompanies, setVerifierCompanies] = useState([]);
   const { address } = useAccount();
-
-  function createPaddedString(inputString, desiredLength) {
-    if (inputString.length >= desiredLength) {
-      return inputString.slice(0, desiredLength);
-    } else {
-      const padding = ' '.repeat(desiredLength - inputString.length);
-      return inputString + padding;
-    }
-  }
 
   useEffect(() => {
     async function fetchHypercerts() {
-      let resolvedAddress = await fetchEnsName({
-        address: address as `0x{string}`,
-      });
       if (!hypercerts) {
         const registeredProjects = await getRegisteredProjects(
           "All Categories"
@@ -99,11 +87,21 @@ const DashboardPage = () => {
         }
         // @ts-ignore
         setHypercerts(hypercertList);
+
+        let companies = await getCompaniesVerifier(address);
+        console.log(companies);
+        let temp = [];
+        for (const company of companies) {
+          console.log(company);
+          temp.push(company);
+        }
+        setVerifierCompanies(temp);
+        console.log(verifierCompanies);
       }
     }
 
     fetchHypercerts();
-  }, [hypercerts]);
+  }, [hypercerts, verifierCompanies]);
 
   const data = [
     {
@@ -117,18 +115,6 @@ const DashboardPage = () => {
       value: "verifier-companies",
       icon: UserCircleIcon,
       desc: "Attest and validate projects as a verifier.",
-    },
-  ];
-  const verifierCompanies = [
-    {
-      name: "Company 1",
-      description: "This is Company 1 description.",
-      admin: "Admin 1",
-    },
-    {
-      name: "Company 2",
-      description: "This is Company 2 description.",
-      admin: "Admin 2",
     },
   ];
 
@@ -175,21 +161,19 @@ const DashboardPage = () => {
                 <h2 className="text-lg font-semibold mb-2">My Projects</h2>
 
                 {hypercerts?.map((hypercert) => (
-            
                   <div
                     key={hypercert.id}
                     className="bg-blue-100 p-4 rounded mb-4"
                   >
                     <Link href={`/project?id=${hypercert.id.claimID}`}>
-                  
-                    <h3 className="text-md font-semibold mb-1">
-                      {hypercert.name}
-                    </h3>
+                      <h3 className="text-md font-semibold mb-1">
+                        {hypercert.name}
+                      </h3>
                     </Link>
                     <p className="text-sm text-gray-600 mb-2">
-                      {hypercert.description.slice(0, 50) + '...'}
+                      {hypercert.description.slice(0, 50) + "..."}
                     </p>
-                    <div className="flex space-x-2">
+                    {/* <div className="flex space-x-2">
                       {hypercert.hypercert.categories.map(
                         (category, categoryIndex) => (
                           <span
@@ -200,7 +184,7 @@ const DashboardPage = () => {
                           </span>
                         )
                       )}
-                    </div>
+                    </div> */}
                     <button
                       onClick={handleAttestButtonClick}
                       className="bg-blue-500 text-white px-2 py-1 rounded mt-2"

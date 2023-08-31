@@ -4,14 +4,14 @@ pragma solidity ^0.8.17;
 import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import {ITablelandVerifiers} from "../interfaces/ITablelandVerifiers.sol";
+import {IVerifiers} from "../interfaces/IVerifiers.sol";
 
 contract VerifiersRegistry is ERC1155, AccessControl {
   using EnumerableSet for EnumerableSet.Bytes32Set;
 
   bytes32 constant private REGISTRAR_ROLE = keccak256(abi.encode("REGISTRAR_ROLE"));
 
-  ITablelandVerifiers indexerContract;
+  IVerifiers indexerContract;
 
   EnumerableSet.Bytes32Set RegisteredVerifierRoles;
 
@@ -19,7 +19,7 @@ contract VerifiersRegistry is ERC1155, AccessControl {
 
 
   // Constructor
-  constructor(ITablelandVerifiers _indexerContract) ERC1155("") {
+  constructor(IVerifiers _indexerContract) ERC1155("") {
     _grantRole(REGISTRAR_ROLE, msg.sender);
     indexerContract = _indexerContract;
   }

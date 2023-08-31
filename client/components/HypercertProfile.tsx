@@ -3,6 +3,8 @@ import { Button } from "@material-tailwind/react";
 import EthereumAddress from "./EthereumAddress";
 import { useAccount } from "wagmi";
 import FeedbackModal from '@/components/FeedbackModal';
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { CONTRACTS } from "@/constants/contracts";
 
 type Hypercert = {
   id: string;
@@ -27,6 +29,19 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({ hypercert ,isOwner}
   const { name, description, image, id,external_url, hypercert: hc } = hypercert;
   const {address} = useAccount()
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
+
+  const { config } = usePrepareContractWrite({
+    address: CONTRACTS.fundTheCommons[5].contract,
+    abi: CONTRACTS.fundTheCommons[5].abi,
+    functionName: "registerHypercertProject",
+    args: [
+      // hypercertID,
+      // fractionIDs,
+      // registeredCategories,
+      // registeredEvents,
+    ],
+  });
+  const { write } = useContractWrite(config);
 
   const handleLeaveFeedback = (project:any) => {
     setFeedbackModalOpen(true);

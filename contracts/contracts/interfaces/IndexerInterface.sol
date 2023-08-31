@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-interface ITableland {
+interface IndexerInterface {
 
     function insertFunding(
         uint256 claimID,

@@ -13,7 +13,6 @@ import HypercertProfile from "@/components/HypercertProfile"; // Import your Hyp
 import ReceivedFundingsItem from "@/components/ReceivedFundingsItem";
 import ProjectUpdatesItem from "@/components/ProjectUpdatesItem";
 import ProjectFeedbackItem from "@/components/ProjectFeedbackItem";
-import EventItem from "@/components/EventItem";
 import { getData, getClaims,getUserHypercerts,getClaimEvents } from "../lib/operator/index";
 import { useRouter } from 'next/router';
 import Link from 'next/link'; // Import the Link component

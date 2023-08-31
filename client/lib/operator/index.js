@@ -311,6 +311,14 @@ export const getEventProjects = async (eventID) => {
   return result;
 };
 
+export const getCompaniesVerifier = async(address)=>{
+  const query = `https://testnets.tableland.network/api/v1/query?&statement=SELECT DISTINCT(A.company),C.image
+  FROM ${tables.company} AS C, ${tables.company_event} AS A  JOIN  ${tables.company_event_verifiers} AS B ON A.eventID = B.eventID WHERE B.verifierAddress='${address.toLowerCase()}' AND A.company = C.company`
+  const categories = await fetch(query);
+  let result = await categories.json();
+  return result;
+}
+
 export const getClaimEvents = async (claimID) => {
   const query = `SELECT A.eventID , A.cid FROM ${tables.company_event} AS A  JOIN  ${tables.project_events} AS B ON A.eventID = B.eventID WHERE B.claimID='${claimID}'`;
   const events = await fetch(

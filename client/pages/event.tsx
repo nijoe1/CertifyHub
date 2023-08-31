@@ -17,7 +17,7 @@ const EventPage = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [eventData, setEventData] = useState(undefined);
   const [projects, setProjects] = useState([]);
-  const [hypercerts, setHypercerts] = useState();
+  const [hypercerts, setHypercerts] = useState([]);
 
   const router = useRouter();
 
@@ -47,24 +47,26 @@ const EventPage = () => {
       }
       setProjects(temp);
       console.log(projects);
-      const hypercertList = [];
+      if (hypercerts.length == 0) {
+        const hypercertList = [];
 
-      for (const id of projects) {
-        const claimTokens = await getClaims(
-          "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-" + id
-        );
-        const metadataUri = claimTokens?.claimTokens[0]?.claim?.uri;
-        const metadata = await getData(metadataUri);
-        console.log(metadata);
+        for (const id of projects) {
+          const claimTokens = await getClaims(
+            "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-" + id
+          );
+          const metadataUri = claimTokens?.claimTokens[0]?.claim?.uri;
+          const metadata = await getData(metadataUri);
 
-        metadata.hypercert.categories = id?.categories.map(
-          (item: any) => item.category
-        );
-        metadata.id = id ? id : undefined;
-        hypercertList.push(metadata);
+          // metadata.hypercert.categories = id?.categories.map(
+          //   (item: any) => item.category
+          // );
+          metadata.id = id ? id : undefined;
+          hypercertList.push(metadata);
+        }
+        // @ts-ignore
+        setHypercerts(hypercertList);
+        console.log(hypercerts);
       }
-      // @ts-ignore
-      setHypercerts(hypercertList);
     }
     fetchFunderDetails();
   }, [router.query.id, hypercerts]);
@@ -109,33 +111,45 @@ const EventPage = () => {
             }}
           >
             {/* Render tabs */}
-            <Tab value="projects">Projects</Tab>
+            <Tab value="projects">Projects</Tab>{" "}
             <Tab value="Fundings">Fundings</Tab>
+            <Tab value="Verifiers">Verifiers</Tab>
           </TabsHeader>
           <TabsBody>
             <TabPanel value="projects">
-              <h2 className="text-lg font-semibold mb-2">My Projects</h2>
-
-              {hypercerts.map((hypercert) => (
-                <div key={hypercert.id} className="bg-blue-100 p-4 rounded mb-4">
-                  <Link href={`/project?id=${hypercert.id}`}>
-                    <h3 className="text-md font-semibold mb-1">{hypercert.name}</h3>
-                  </Link>
-                  <p className="text-sm text-gray-600 mb-2">
-                    {hypercert.description.slice(0, 50) + "..."}
-                  </p>
-                  <div className="flex space-x-2">
-                    {hypercert.hypercert.categories.map((category, categoryIndex) => (
-                      <span
-                        key={categoryIndex}
-                        className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
-                      >
-                        {category}
-                      </span>
-                    ))}
+              {hypercerts.length > 0 ? (
+                hypercerts.map((hypercert) => (
+                  <div
+                    key={hypercert.id}
+                    className="bg-blue-100 p-4 rounded mb-4"
+                  >
+                    <Link
+                      href={`/project?id=0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-${hypercert.id}`}
+                    >
+                      <h3 className="text-md font-semibold mb-1">
+                        {hypercert.name}
+                      </h3>
+                    </Link>
+                    <p className="text-sm text-gray-600 mb-2">
+                      {hypercert.description.slice(0, 50) + "..."}
+                    </p>
+                    {/* <div className="flex space-x-2">
+                      {hypercert.hypercert.categories.map(
+                        (category, categoryIndex) => (
+                          <span
+                            key={categoryIndex}
+                            className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
+                          >
+                            {category}
+                          </span>
+                        )
+                      )}
+                    </div> */}
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p>Loading projects...</p>
+              )}
             </TabPanel>
           </TabsBody>
         </Tabs>
