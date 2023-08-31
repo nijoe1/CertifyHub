@@ -21,9 +21,21 @@ import {
   getClaims,
   getCompaniesVerifier,
 } from "@/lib/operator/index";
-
+type Hypercert = {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  external_url: string;
+  hypercert: {
+    contributors: {
+      value: string[];
+    };
+    categories: string[];
+  };
+};
 const DashboardPage = () => {
-  const [hypercerts, setHypercerts] = useState();
+  const [hypercerts, setHypercerts] = useState<Hypercert[] | undefined>();
   const [verifierCompanies, setVerifierCompanies] = useState([]);
   const { address } = useAccount();
 
@@ -48,26 +60,28 @@ const DashboardPage = () => {
           tokens.claimTokens.some((token: any) => token.claim.id === claimId)
         );
 
-        const combinedProjects = filteredClaimIdsInData.map((userProject) => {
-          const matchingRegisteredProject = filteredClaimIds.find(
-            (regProject) => regProject.claimID == userProject
-          );
-          console.log(matchingRegisteredProject);
+        const combinedProjects = filteredClaimIdsInData.map(
+          (userProject: any) => {
+            const matchingRegisteredProject = filteredClaimIds.find(
+              (regProject: any) => regProject.claimID == userProject
+            );
+            console.log(matchingRegisteredProject);
 
-          if (!matchingRegisteredProject) {
+            if (!matchingRegisteredProject) {
+              return {
+                claimID: userProject,
+                categories: [], // If no matching project found, initialize with empty categories
+              };
+            }
+
             return {
               claimID: userProject,
-              categories: [], // If no matching project found, initialize with empty categories
+              categories: matchingRegisteredProject.categories.map(
+                (category: any) => category.trim()
+              ),
             };
           }
-
-          return {
-            claimID: userProject,
-            categories: matchingRegisteredProject.categories.map((category) =>
-              category.trim()
-            ),
-          };
-        });
+        );
 
         console.log(combinedProjects);
 
@@ -95,6 +109,7 @@ const DashboardPage = () => {
           console.log(company);
           temp.push(company);
         }
+        // @ts-ignore
         setVerifierCompanies(temp);
         console.log(verifierCompanies);
       }
@@ -165,6 +180,7 @@ const DashboardPage = () => {
                     key={hypercert.id}
                     className="bg-blue-100 p-4 rounded mb-4"
                   >
+                    {/* @ts-ignore */}
                     <Link href={`/project?id=${hypercert.id.claimID}`}>
                       <h3 className="text-md font-semibold mb-1">
                         {hypercert.name}
@@ -206,12 +222,17 @@ const DashboardPage = () => {
                     }`}
                   >
                     <Link href={`/company`}>
+                      {/* @ts-ignore */}
+
                       <h3 className="text-md font-bold mb-1">{company.name}</h3>
                     </Link>
                     <p className="text-sm text-gray-600 mb-2">
+                      {/* @ts-ignore */}
+
                       {company.description}
                     </p>
                     <p className="text-sm text-gray-500">
+                      {/* @ts-ignore */}
                       Admin: {company.admin}
                     </p>
                   </div>

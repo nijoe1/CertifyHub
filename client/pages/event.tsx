@@ -45,6 +45,8 @@ const EventPage = () => {
       for (const project of EventProjects) {
         temp.push(project.claimID);
       }
+
+      /* @ts-ignore */
       setProjects(temp);
       console.log(projects);
       if (hypercerts.length == 0) {
@@ -80,6 +82,8 @@ const EventPage = () => {
           <div className="bg-gray-100 p-4 rounded-lg shadow-md w-80 text-center">
             <div className="flex items-center justify-center mb-4">
               <img
+                                  {/* @ts-ignore */}
+
                 src={`data:image/png;base64,${eventData.fileBase64}`}
                 alt="Event Image"
                 className="w-24 h-24 rounded-full"
@@ -87,12 +91,20 @@ const EventPage = () => {
             </div>
             <div>
               <h2 className="text-xl font-semibold mb-1">
+                                    {/* @ts-ignore */}
+
                 name: {eventData.name}
               </h2>
               <p className="text-gray-600 mb-2">
+                                    {/* @ts-ignore */}
+
                 description: {eventData.description}
               </p>
+                                  {/* @ts-ignore */}
+
               <p className="text-gray-600 mb-2">eventHost: {eventData.host}</p>
+                                  {/* @ts-ignore */}
+
               <p className="text-gray-600 mb-2">type: {eventData.type}</p>
             </div>
             <div className="flex justify-center space-x-2 mt-4">

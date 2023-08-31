@@ -18,14 +18,24 @@ import EventCard from "@/components/EventCard";
 import { storeData } from "@/lib/operator";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import { CONTRACTS } from "@/constants/contracts";
-
+interface Funder {
+  name: string;
+  image: string;
+  description: string;
+  admin: string;
+  // ... other properties
+}
+interface EventMetadata {
+  eventID: string; // Change the type to match the actual data type of eventID
+  // ... other properties
+}
 const FunderPage = () => {
   const router = useRouter();
-  const [funder, setFunder] = useState([]);
+  const [funder, setFunder] = useState<Funder[]>([]);
   const { address } = useAccount();
   const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
   const [showRegisterModal, setShowRegisterModal] = useState(false);
-  const [eventsMetadata, setEventsMetadata] = useState([]);
+  const [eventsMetadata, setEventsMetadata] = useState<EventMetadata[]>([]);
   const [updated, setUpdated] = useState(false);
 
   const [eventData, setEventData] = useState({
@@ -72,7 +82,7 @@ const FunderPage = () => {
     // @ts-ignore
 
     let metadata = [];
-    details.events.map(async (event) => {
+    details.events.map(async (event:any) => {
       let data = await getData(event.cid);
       data.eventID = event.eventID;
       data.type = event.type;
