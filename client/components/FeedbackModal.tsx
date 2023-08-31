@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 type FeedbackModalProps = {
   project: any; // You should replace 'any' with the actual type of your project
@@ -6,8 +6,8 @@ type FeedbackModalProps = {
 };
 
 const FeedbackModal: React.FC<FeedbackModalProps> = ({ project, onClose }) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [rating, setRating] = useState(1); // Default rating to 1
 
   const handleRatingChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,8 +20,8 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ project, onClose }) => {
     // TODO: Handle feedback submission, e.g., send feedback to server
 
     // Clear form inputs
-    setName('');
-    setDescription('');
+    setName("");
+    setDescription("");
     setRating(1);
 
     onClose();
@@ -33,7 +33,10 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ project, onClose }) => {
         <h2 className="text-xl font-semibold mb-4">Leave Feedback</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700"
+            >
               Name
             </label>
             <input
@@ -46,7 +49,10 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ project, onClose }) => {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700"
+            >
               Description
             </label>
             <textarea
@@ -60,7 +66,10 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ project, onClose }) => {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="rating" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="rating"
+              className="block text-sm font-medium text-gray-700"
+            >
               Rating
             </label>
             <input

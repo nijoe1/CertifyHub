@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { fetchEnsName } from "@wagmi/core";
-import {
-  getProfile,
-} from "@/lib/operator/index";
+import { getProfile } from "@/lib/operator/index";
 
 const UserProfile = () => {
   const { address } = useAccount();

@@ -4,13 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/utils/config";
 const origin =
-    typeof window !== "undefined" && window.location.origin
-      ? window.location.origin
-      : SITE_URL;
+  typeof window !== "undefined" && window.location.origin
+    ? window.location.origin
+    : SITE_URL;
 const Navbar = () => {
   const router = useRouter();
 
-  const handleLinkClick = (href:any) => {
+  const handleLinkClick = (href: any) => {
     router.push(href);
   };
 

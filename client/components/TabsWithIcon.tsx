@@ -10,8 +10,11 @@ import { UserCircleIcon } from "@heroicons/react/outline";
 type TabsWithIconProps = {
   activeTab: any; // You should replace 'any' with the actual type of your project
   handleTabChange: () => void; // You should replace 'any' with the actual type of your project
-
-};const TabsWithIcon : React.FC<TabsWithIconProps> = ({ activeTab, handleTabChange }) => {
+};
+const TabsWithIcon: React.FC<TabsWithIconProps> = ({
+  activeTab,
+  handleTabChange,
+}) => {
   const data = [
     {
       label: "Dashboard",
@@ -24,11 +27,19 @@ type TabsWithIconProps = {
   ];
 
   return (
-    <Tabs value={activeTab} onChange={handleTabChange} className="max-w-md mx-auto">
+    <Tabs
+      value={activeTab}
+      onChange={handleTabChange}
+      className="max-w-md mx-auto"
+    >
       <TabsHeader className="mb-2">
         {data.map(({ label, value, icon }) => (
           <Tab key={value} value={value}>
-            <div className={`flex items-center gap-2 p-2 ${activeTab === value ? "bg-blue-200" : ""}`}>
+            <div
+              className={`flex items-center gap-2 p-2 ${
+                activeTab === value ? "bg-blue-200" : ""
+              }`}
+            >
               {React.createElement(icon, { className: "w-5 h-5" })}
               {label}
             </div>

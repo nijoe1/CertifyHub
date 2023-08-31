@@ -8,10 +8,10 @@ import {
   Button,
 } from "@material-tailwind/react";
 type EventProps = {
-    event: any; // Specify the type of the 'text' prop
-  };
-  
-const EventCard : React.FC<EventProps> = ({ event }) => {
+  event: any; // Specify the type of the 'text' prop
+};
+
+const EventCard: React.FC<EventProps> = ({ event }) => {
   return (
     <Card className="mt-6 w-80">
       <CardHeader color="blue-gray" className="relative h-56">

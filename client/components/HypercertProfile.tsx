@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@material-tailwind/react";
 import EthereumAddress from "./EthereumAddress";
 import { useAccount } from "wagmi";
-import FeedbackModal from '@/components/FeedbackModal';
+import FeedbackModal from "@/components/FeedbackModal";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 import { CONTRACTS } from "@/constants/contracts";
 
@@ -22,12 +22,22 @@ type Hypercert = {
 
 type HypercertProfileProps = {
   hypercert: Hypercert;
-  isOwner:boolean;
+  isOwner: boolean;
 };
 
-const HypercertProfile: React.FC<HypercertProfileProps> = ({ hypercert ,isOwner}) => {
-  const { name, description, image, id,external_url, hypercert: hc } = hypercert;
-  const {address} = useAccount()
+const HypercertProfile: React.FC<HypercertProfileProps> = ({
+  hypercert,
+  isOwner,
+}) => {
+  const {
+    name,
+    description,
+    image,
+    id,
+    external_url,
+    hypercert: hc,
+  } = hypercert;
+  const { address } = useAccount();
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
 
   const { config } = usePrepareContractWrite({
@@ -43,7 +53,7 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({ hypercert ,isOwner}
   });
   const { write } = useContractWrite(config);
 
-  const handleLeaveFeedback = (project:any) => {
+  const handleLeaveFeedback = (project: any) => {
     setFeedbackModalOpen(true);
   };
 
@@ -89,10 +99,7 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({ hypercert ,isOwner}
 
         {/* Action Buttons */}
         <div className="flex justify-center gap-4 mt-4">
-          <Button
-            color="blue"
-            onClick={() => handleLeaveFeedback(1)}
-          >
+          <Button color="blue" onClick={() => handleLeaveFeedback(1)}>
             Provide Feedback
           </Button>
           <Button
@@ -101,12 +108,14 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({ hypercert ,isOwner}
           >
             Fund Project!
           </Button>
-          {isOwner && <Button
-            color="green"
-            onClick={() => console.log("Fund Project clicked")}
-          >
-            attest update
-          </Button>}
+          {isOwner && (
+            <Button
+              color="green"
+              onClick={() => console.log("Fund Project clicked")}
+            >
+              attest update
+            </Button>
+          )}
         </div>
 
         {/* External URL */}
@@ -120,7 +129,13 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({ hypercert ,isOwner}
         </a>
       </div>
       {feedbackModalOpen && (
-        <FeedbackModal project={id.replace("0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-", "")} onClose={() => setFeedbackModalOpen(false)} />
+        <FeedbackModal
+          project={id.replace(
+            "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-",
+            ""
+          )}
+          onClose={() => setFeedbackModalOpen(false)}
+        />
       )}
     </div>
   );

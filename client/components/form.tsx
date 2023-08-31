@@ -1,65 +1,74 @@
 import React, { useState } from "react";
- 
 
 interface HypercertFormData {
-    name: string;
-    description: string;
-    external_url: string;
-    image: string;
-    version: string;
-    ref: string;
-    allowList: string;
-    properties: Array<{ trait_type: string; value: string }>;
-    // Add other properties here
-  }
-  
-  interface HypercertFormProps {
-    onSubmit: (formData: HypercertFormData) => void;
-  }
-  
-  const HypercertForm: React.FC<HypercertFormProps> = ({ onSubmit }) => {
-    const [formData, setFormData] = useState<HypercertFormData>({
-      name: "",
-      description: "",
-      external_url: "",
-      image: "",
-      version: "",
-      ref: "",
-      allowList: "",
-      properties: [],
-      // Initialize other properties here
-    });
-  
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { name, value } = e.target;
-      setFormData((prevData) => ({ ...prevData, [name]: value }));
-    };
-  
-    const handlePropertiesChange = (index: number, field: keyof typeof formData.properties[0], value: string) => {
-      const updatedProperties = [...formData.properties];
-      updatedProperties[index] = { ...updatedProperties[index], [field]: value };
-      setFormData((prevData) => ({ ...prevData, properties: updatedProperties }));
-    };
-  
-    const handleClick = () => {
-      if (validate(formData)) {
-        onSubmit(formData);
-      } else {
-        console.log("Form data is not valid.");
-      }
-    };
-  
-    const validate = (data: HypercertFormData) => {
-      // Perform validation logic here
-      return true; // Return true if validation passes, false otherwise
-    };
-  
+  name: string;
+  description: string;
+  external_url: string;
+  image: string;
+  version: string;
+  ref: string;
+  allowList: string;
+  properties: Array<{ trait_type: string; value: string }>;
+  // Add other properties here
+}
+
+interface HypercertFormProps {
+  onSubmit: (formData: HypercertFormData) => void;
+}
+
+const HypercertForm: React.FC<HypercertFormProps> = ({ onSubmit }) => {
+  const [formData, setFormData] = useState<HypercertFormData>({
+    name: "",
+    description: "",
+    external_url: "",
+    image: "",
+    version: "",
+    ref: "",
+    allowList: "",
+    properties: [],
+    // Initialize other properties here
+  });
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handlePropertiesChange = (
+    index: number,
+    field: keyof (typeof formData.properties)[0],
+    value: string
+  ) => {
+    const updatedProperties = [...formData.properties];
+    updatedProperties[index] = { ...updatedProperties[index], [field]: value };
+    setFormData((prevData) => ({ ...prevData, properties: updatedProperties }));
+  };
+
+  const handleClick = () => {
+    if (validate(formData)) {
+      onSubmit(formData);
+    } else {
+      console.log("Form data is not valid.");
+    }
+  };
+
+  const validate = (data: HypercertFormData) => {
+    // Perform validation logic here
+    return true; // Return true if validation passes, false otherwise
+  };
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded shadow-md mt-10">
       <h2 className="text-2xl font-semibold mb-4">Create Hypercert</h2>
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">Name</label>
+        <label
+          className="block text-gray-700 text-sm font-bold mb-2"
+          htmlFor="name"
+        >
+          Name
+        </label>
         <input
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           id="name"
@@ -73,7 +82,12 @@ interface HypercertFormData {
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">Description</label>
+        <label
+          className="block text-gray-700 text-sm font-bold mb-2"
+          htmlFor="description"
+        >
+          Description
+        </label>
         <textarea
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           id="description"
@@ -87,7 +101,12 @@ interface HypercertFormData {
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="external_url">External URL</label>
+        <label
+          className="block text-gray-700 text-sm font-bold mb-2"
+          htmlFor="external_url"
+        >
+          External URL
+        </label>
         <input
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           id="external_url"
@@ -100,7 +119,12 @@ interface HypercertFormData {
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="image">Image</label>
+        <label
+          className="block text-gray-700 text-sm font-bold mb-2"
+          htmlFor="image"
+        >
+          Image
+        </label>
         <input
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           id="image"
@@ -114,7 +138,12 @@ interface HypercertFormData {
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="version">Version</label>
+        <label
+          className="block text-gray-700 text-sm font-bold mb-2"
+          htmlFor="version"
+        >
+          Version
+        </label>
         <input
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           id="version"
@@ -127,7 +156,12 @@ interface HypercertFormData {
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="ref">Ref</label>
+        <label
+          className="block text-gray-700 text-sm font-bold mb-2"
+          htmlFor="ref"
+        >
+          Ref
+        </label>
         <input
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           id="ref"
@@ -140,7 +174,12 @@ interface HypercertFormData {
       </div>
 
       <div className="mb-4">
-        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="allowList">Allow List</label>
+        <label
+          className="block text-gray-700 text-sm font-bold mb-2"
+          htmlFor="allowList"
+        >
+          Allow List
+        </label>
         <input
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
           id="allowList"
@@ -163,14 +202,18 @@ interface HypercertFormData {
               type="text"
               placeholder="Trait Type"
               value={property.trait_type}
-              onChange={(e) => handlePropertiesChange(index, "trait_type", e.target.value)}
+              onChange={(e) =>
+                handlePropertiesChange(index, "trait_type", e.target.value)
+              }
             />
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               type="text"
               placeholder="Value"
               value={property.value}
-              onChange={(e) => handlePropertiesChange(index, "value", e.target.value)}
+              onChange={(e) =>
+                handlePropertiesChange(index, "value", e.target.value)
+              }
             />
           </div>
         </div>
@@ -189,5 +232,5 @@ interface HypercertFormData {
   );
 };
 
-export { HypercertForm };    export type { HypercertFormData };
-
+export { HypercertForm };
+export type { HypercertFormData };

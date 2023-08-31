@@ -82,7 +82,7 @@ const FunderPage = () => {
     // @ts-ignore
 
     let metadata = [];
-    details.events.map(async (event:any) => {
+    details.events.map(async (event: any) => {
       let data = await getData(event.cid);
       data.eventID = event.eventID;
       data.type = event.type;

@@ -1,12 +1,10 @@
-import React from 'react';
-
+import React from "react";
 
 type TooltipProps = {
   text: any; // You should replace 'any' with the actual type of your project
   children: any; // You should replace 'any' with the actual type of your project
-
 };
-const Tooltip : React.FC<TooltipProps> =({ text, children }) => {
+const Tooltip: React.FC<TooltipProps> = ({ text, children }) => {
   return (
     <div className="relative inline-block">
       {children}

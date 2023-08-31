@@ -44,7 +44,7 @@ const EventPage = () => {
       let temp = [];
       for (const project of EventProjects) {
         temp.push(project.claimID);
-      }                    
+      }
 
       setProjects(temp);
       console.log(projects);
@@ -119,7 +119,7 @@ const EventPage = () => {
           <TabsBody>
             <TabPanel value="projects">
               {hypercerts.length > 0 ? (
-                hypercerts.map((hypercert:any) => (
+                hypercerts.map((hypercert: any) => (
                   <div
                     key={hypercert.id}
                     className="bg-blue-100 p-4 rounded mb-4"

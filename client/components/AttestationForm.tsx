@@ -1,11 +1,11 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useState } from "react";
 type AttestationFormProps = {
   onClose: () => void; // Specify the type of onClose prop
 };
 const AttestationForm: React.FC<AttestationFormProps> = ({ onClose }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
     file: undefined, // Initialize with undefined
   });
 
@@ -16,7 +16,6 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onClose }) => {
       [name]: value,
     }));
   };
-
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     // @ts-ignore
@@ -34,9 +33,9 @@ const AttestationForm: React.FC<AttestationFormProps> = ({ onClose }) => {
       name: formData.name,
       description: formData.description,
       // @ts-ignore
-      file: formData?.file ? formData.file.name : '',
+      file: formData?.file ? formData.file.name : "",
     };
-    console.log('Attestation Data:', attestationData);
+    console.log("Attestation Data:", attestationData);
     onClose();
   };
 

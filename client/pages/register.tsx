@@ -83,10 +83,10 @@ const RegisterPage = () => {
   }, [hypercertID, registeredCategories]);
 
   const handleAddCategory = () => {
-        // @ts-ignore
+    // @ts-ignore
 
     if (selectedCategory && !registeredCategories.includes(selectedCategory)) {
-    // @ts-ignore
+      // @ts-ignore
 
       setRegisteredCategories([...registeredCategories, selectedCategory]);
       setSelectedCategory(""); // Clear selected category after adding

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 type BadgeProps = {
   text: string; // Specify the type of the 'text' prop

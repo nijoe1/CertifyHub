@@ -90,7 +90,7 @@ export default function HypercertCard({
         <Typography color="gray">{truncatedDescription}</Typography>
         <div className="mt-2 flex items-center">
           <strong className="mr-2">Rating:</strong>
-          <Rating value={4} readonly  />
+          <Rating value={4} readonly />
         </div>
         <div className="mt-2">
           <Typography>

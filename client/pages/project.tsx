@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/Footer";
 import {
@@ -13,50 +13,58 @@ import HypercertProfile from "@/components/HypercertProfile"; // Import your Hyp
 import ReceivedFundingsItem from "@/components/ReceivedFundingsItem";
 import ProjectUpdatesItem from "@/components/ProjectUpdatesItem";
 import ProjectFeedbackItem from "@/components/ProjectFeedbackItem";
-import { getData, getClaims,getUserHypercerts,getClaimEvents } from "../lib/operator/index";
-import { useRouter } from 'next/router';
-import Link from 'next/link'; // Import the Link component
+import {
+  getData,
+  getClaims,
+  getUserHypercerts,
+  getClaimEvents,
+} from "../lib/operator/index";
+import { useRouter } from "next/router";
+import Link from "next/link"; // Import the Link component
 import { useAccount } from "wagmi";
 import EventCard from "@/components/EventCard";
 
 const ProjectPage = () => {
   const router = useRouter();
   const [hypercertData, setHypercertData] = useState(null);
-  const [isOwner, setIsOwner] = useState(false)
-  const [eventsMetadata, setEventsMetadata] = useState([])
+  const [isOwner, setIsOwner] = useState(false);
+  const [eventsMetadata, setEventsMetadata] = useState([]);
 
-  const {address} = useAccount()
+  const { address } = useAccount();
 
   // Fetch hypercert information based on the claimID from the router query
   useEffect(() => {
     const claimID = router?.query?.id;
-    async function fetchHypercerts(claimID:any) {
+    async function fetchHypercerts(claimID: any) {
       const claimTokens = await getClaims(claimID);
-      const userClaims = await getUserHypercerts(address)
-      console.log(userClaims)
-      if(userClaims.claims.length > 0 ){
-        for(const claim of userClaims.claims){
-          let id = "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-"+claim.tokenID
-          if(id == claimID){
-            console.log(claim.tokenID)
-            setIsOwner(true)
+      const userClaims = await getUserHypercerts(address);
+      console.log(userClaims);
+      if (userClaims.claims.length > 0) {
+        for (const claim of userClaims.claims) {
+          let id =
+            "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-" + claim.tokenID;
+          if (id == claimID) {
+            console.log(claim.tokenID);
+            setIsOwner(true);
             break;
           }
         }
       }
       // @ts-ignore
-      let id = await router?.query?.id?.replace("0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-","")
-      let registeredEvents = await getClaimEvents(id)
-      let temp = []
-      for(const event of registeredEvents){
-        let metadata = await getData(event.cid)
-        metadata.eventID = event.eventID
-        temp.push(metadata)
+      let id = await router?.query?.id?.replace(
+        "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-",
+        ""
+      );
+      let registeredEvents = await getClaimEvents(id);
+      let temp = [];
+      for (const event of registeredEvents) {
+        let metadata = await getData(event.cid);
+        metadata.eventID = event.eventID;
+        temp.push(metadata);
       }
-      console.log(temp)
+      console.log(temp);
       // @ts-ignore
-      setEventsMetadata(temp)
-
+      setEventsMetadata(temp);
 
       const metadataUri = claimTokens?.claimTokens[0]?.claim.uri;
       const metadata = await getData(metadataUri);
@@ -66,7 +74,7 @@ const ProjectPage = () => {
       }
     }
     fetchHypercerts(claimID);
-  }, [router.query.id,isOwner]);
+  }, [router.query.id, isOwner]);
 
   const tabsData = [
     {
@@ -133,7 +141,7 @@ const ProjectPage = () => {
 
   const [activeTab, setActiveTab] = useState("received-fundings");
 
-  const handleTabChange = (tabValue:any) => {
+  const handleTabChange = (tabValue: any) => {
     setActiveTab(tabValue);
   };
 
@@ -141,7 +149,9 @@ const ProjectPage = () => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div className="flex-grow p-4">
-        {hypercertData && <HypercertProfile hypercert={hypercertData} isOwner= {isOwner} />}
+        {hypercertData && (
+          <HypercertProfile hypercert={hypercertData} isOwner={isOwner} />
+        )}
 
         <Tabs value={activeTab} className="max-w-[40rem] mx-auto">
           <TabsHeader
@@ -200,8 +210,8 @@ const ProjectPage = () => {
                       ))}
                     </div>
                   )}
-                  {value === "registered-events" && eventsMetadata.length > 0  &&(
-                    
+                  {value === "registered-events" &&
+                    eventsMetadata.length > 0 && (
                       <div className="flex flex-col items-center">
                         <h2 className="text-xl font-semibold mb-4">Events</h2>
                         <div className="w-full flex flex-wrap justify-center">
@@ -222,6 +232,6 @@ const ProjectPage = () => {
       <Footer />
     </div>
   );
-}
+};
 
 export default ProjectPage;
