@@ -21,8 +21,42 @@ const RegisterPage = () => {
   const [registeredEvents, setRegisteredEvents] = useState([]);
   const [showEventForm, setShowEventForm] = useState(false);
   const [fractionIDs, setFractionIDs] = useState([]);
-  const [error, setError] = useState<string | null>(null); // Initial value is null
+  const [selectedTemplate, setSelectedTemplate] = useState([]);
+  const [error, setError] = useState<string | null>(null);
+  const [added, setAdded] = useState(0);
+  const categoryOptions = [
+    { value: "", label: "Select Category" }, // Added a default option
+    { value: "CO2.Storage", label: "CO2.Storage" },
+    { value: "DEFI", label: "DEFI" },
+    { value: "NFTs", label: "NFTs" },
+    { value: "DAOs", label: "DAOs" },
+  ];
+  const [options, setOptions] = useState(categoryOptions);
 
+  const templateOptions = [
+    { value: "", label: "Select Category" }, // Added a default option
+    { value: "intrinsic methods", label: "intrinsic methods" },
+    {
+      value: "Oceanography - Data Conversion",
+      label: "Oceanography - Data Conversion",
+    },
+    { value: "prov-filgreen-community", label: "prov-filgreen-community" },
+    { value: "rapaygo examples", label: "rapaygo examples" },
+    { value: "Reneun", label: "Reneun" },
+    { value: "Research Data Validation", label: "Research Data Validation" },
+    { value: "SP Audits", label: "SP Audits" },
+    { value: "Stable Diffusion on a GPU", label: "Stable Diffusion on a GPU" },
+    { value: "CO2 Boss Fight", label: "CO2 Boss Fight" },
+    { value: "EVP Results", label: "EVP Results" },
+    { value: "Footprint", label: "Footprint" },
+    { value: "ForestWatch", label: "ForestWatch" },
+    {
+      value: "Gas Emissions Measurements - Hypen",
+      label: "Gas Emissions Measurements - Hypen",
+    },
+    { value: "Green Carbon Calculator", label: "Green Carbon Calculator" },
+    { value: "GreenPower", label: "GreenPower" },
+  ];
   const { config } = usePrepareContractWrite({
     address: CONTRACTS.fundTheCommons[5].contract,
     abi: CONTRACTS.fundTheCommons[5].abi,
@@ -40,11 +74,14 @@ const RegisterPage = () => {
       let events = await getEvents();
       const options = [];
       for (const event of events) {
-        let metadata = await getData(event.cid);
-        options.push({
-          value: event.eventID,
-          label: `${event.company}/${metadata.name}`,
-        });
+        if(event.cid!=""){
+          const metadata = await getData(event.cid);
+          console.log(metadata);
+          options.push({
+            value: event.eventID,
+            label: `${event.company}/${metadata?.name}`,
+          });
+        }
       }
       // @ts-ignore
       setEventOptions(options);
@@ -87,28 +124,24 @@ const RegisterPage = () => {
 
     if (selectedCategory && !registeredCategories.includes(selectedCategory)) {
       // @ts-ignore
-
-      setRegisteredCategories([...registeredCategories, selectedCategory]);
-      setSelectedCategory(""); // Clear selected category after adding
+      if (added == 2) {
+        setRegisteredCategories(["CO2.Storage", selectedCategory]);
+        setSelectedCategory(selectedCategory); // Clear selected category after adding
+      } else {
+        setRegisteredCategories([...registeredCategories, selectedCategory]);
+        setSelectedCategory(""); // Clear selected category after adding
+      }
     }
   };
 
   const handleAddEvent = () => {
     // @ts-ignore
-    if (selectedEvent && !registeredCategories.includes(selectedEvent)) {
+    if (selectedEvent && !registeredEvents.includes(selectedEvent)) {
       // @ts-ignore
       setRegisteredEvents([...registeredEvents, selectedEvent]);
       setSelectedCategory(""); // Clear selected category after adding
     }
   };
-
-  const categoryOptions = [
-    { value: "", label: "Select Category" }, // Added a default option
-    { value: "DATA( CO2.Storage )", label: "DATA( CO2.Storage )" },
-    { value: "DEFI", label: "DEFI" },
-    { value: "NFTs", label: "NFTs" },
-    { value: "DAOs", label: "DAOs" },
-  ];
 
   return (
     <>
@@ -162,31 +195,52 @@ const RegisterPage = () => {
           {/* Add Category Form */}
           {showCategoryForm && (
             <div className="mt-4 mb-4 flex items-center">
+              {added==0 ?(<h4>Add category</h4>): (<h4>Add Template</h4>)}
               <Select
                 value={selectedCategory}
                 // @ts-ignore
-                onChange={(value) => setSelectedCategory(value)}
+                onChange={(value) => {
+                  if (added == 0) {
+                    if (value == "CO2.Storage") {
+                      setRegisteredCategories([value]);
+                      setOptions(templateOptions);
+                      setAdded(1);
+                    } else {
+                      setSelectedCategory(value);
+                      handleAddCategory();
+                    }
+                  } else if (added == 1) {
+                    setSelectedCategory(value);
+                    setSelectedTemplate([value]);
+                    setRegisteredCategories([value,"CO2.Storage"]);
+
+                    setAdded(2);
+                  } else {
+                    setSelectedCategory(value);
+                    setSelectedTemplate([value]);
+                    setRegisteredCategories([value,"CO2.Storage"]);
+
+                  }
+                }}
                 className=" md:w-69 py-5" // Adjust width as needed
               >
-                {categoryOptions.map((option) => (
+                {options.map((option) => (
                   <Option key={option.value} value={option.value}>
                     {option.label}
                   </Option>
                 ))}
               </Select>
-              <button
-                className="bg-blue-500 text-white px-3 py-2 rounded"
-                onClick={handleAddCategory}
-              >
-                Add Category
-              </button>
             </div>
           )}
           {showEventForm && (
             <div className="mt-4 mb-4 flex items-center">
+              <h4>Add Event</h4>
               <Select
-                value={selectedCategory}
-                onChange={(value: any) => setSelectedEvent(value)}
+                value={selectedEvent}
+                onChange={(value: any) => {
+                  setSelectedEvent(value);
+                  handleAddEvent();
+                }}
                 className=" md:w-69 py-5" // Adjust width as needed
               >
                 {eventOptions.map((option) => (
@@ -197,25 +251,34 @@ const RegisterPage = () => {
                   </Option>
                 ))}
               </Select>
-              <button
-                className="bg-blue-500 text-white px-3 py-2 rounded"
-                onClick={handleAddEvent}
-              >
-                Add Event
-              </button>
             </div>
           )}
 
           {/* Display Chosen Categories */}
-          {registeredCategories.length > 0 && (
+          {registeredCategories.length > 0 && added == 0 ? (
             <div className="mb-4">
               <ChosenCategoriesBox
-                name="Choosen Categories: "
+                name="Choosen Categories:"
                 chosenCategories={registeredCategories}
               />
             </div>
-          )}
+          ) : registeredCategories.length > 0 ?(
+            <div className="mb-4">
+              <ChosenCategoriesBox
+                name="Choosen Categories:"
+                chosenCategories={["CO2.Storage"]}
+              />
+            </div>
+          ):(<div></div>)}
           {/* Display Chosen Categories */}
+          {added > 0 && (
+            <div className="mb-4">
+              <ChosenCategoriesBox
+                name="Choosen Template:"
+                chosenCategories={selectedTemplate}
+              />
+            </div>
+          )}
           {registeredEvents.length > 0 && (
             <div className="mb-4">
               <ChosenCategoriesBox

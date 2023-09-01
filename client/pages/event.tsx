@@ -12,12 +12,14 @@ import {
   Tab,
   TabPanel,
 } from "@material-tailwind/react";
+import HypercertCard from "@/components/HypercertCard";
 const EventPage = () => {
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [eventData, setEventData] = useState<any>(undefined);
   const [projects, setProjects] = useState<string[]>([]);
   const [hypercerts, setHypercerts] = useState<any>([]);
+  const [verifiers, setVerifiers] = useState<any>([]);
 
   const router = useRouter();
 
@@ -35,6 +37,12 @@ const EventPage = () => {
     async function fetchFunderDetails() {
       let event = await getEvent(router.query.id);
       console.log(event);
+      let verifiers = [];
+      for (const temp of event) {
+        verifiers.push(temp.verifierAddress);
+      }
+      setVerifiers(verifiers);
+      console.log("verifiers", verifiers);
       let metadata = await getData(event[0].cid);
       metadata.host = event[0].name;
       setEventData(metadata);
@@ -62,6 +70,7 @@ const EventPage = () => {
           //   (item: any) => item.category
           // );
           metadata.id = id ? id : undefined;
+          metadata.hypercert.categories = []
           hypercertList.push(metadata);
         }
         // @ts-ignore
@@ -119,38 +128,47 @@ const EventPage = () => {
           <TabsBody>
             <TabPanel value="projects">
               {hypercerts.length > 0 ? (
-                hypercerts.map((hypercert: any) => (
-                  <div
-                    key={hypercert.id}
-                    className="bg-blue-100 p-4 rounded mb-4"
-                  >
-                    <Link
-                      href={`/project?id=0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-${hypercert.id}`}
-                    >
-                      <h3 className="text-md font-semibold mb-1">
-                        {hypercert.name}
-                      </h3>
-                    </Link>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {hypercert.description.slice(0, 50) + "..."}
-                    </p>
-                    {/* <div className="flex space-x-2">
-                      {hypercert.hypercert.categories.map(
-                        (category, categoryIndex) => (
-                          <span
-                            key={categoryIndex}
-                            className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
-                          >
-                            {category}
-                          </span>
-                        )
-                      )}
-                    </div> */}
-                  </div>
-                ))
+                <div className="grid grid-cols-1 mx-5 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-80">
+                  {hypercerts.map((hypercert) => (
+                    <HypercertCard
+                      // @ts-ignore
+                      key={hypercert.id}
+                      hypercert={hypercert}
+                      // @ts-ignore
+                      onDetailsClick={undefined}
+                    />
+                  ))}
+                </div>
               ) : (
                 <p>Loading projects...</p>
               )}
+            </TabPanel>
+            <TabPanel value="Verifiers">
+              {/* Verifiers */}
+              <div className="flex flex-col items-center">
+                {" "}
+                {/* Center the table */}
+                <table className="border-collapse border border-gray-300 w-[80%] mt-6 rounded-lg overflow-hidden">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="border border-gray-300 p-2">Verifiers</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {verifiers.map((verifier, index) => (
+                      <tr key={index} className="odd:bg-gray-50 even:bg-white">
+                        <td className="border border-gray-300 p-2">
+                          <Link href={`/dashboard?address=${verifier}`}>
+                            <p className="text-blue-500 hover:underline">
+                              {verifier}
+                            </p>
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </TabPanel>
           </TabsBody>
         </Tabs>

@@ -37,36 +37,35 @@ module.exports = async ({ deployments }) => {
 
   const FundTheGoods = await hre.ethers.getContractFactory("CertifyHub");
 
-  //   tableland Address=>  0xf9C1394D0EA5aeda3F3ff8112CD6C1fCceb651f4
-  // tablelandVerifiers Address=>  0x6A6f2F9313EAf130B4e8ee2552121d62EB0160bC
-  // verifiersRegistry Address=>  0xE6b8feCd4022738Fc2C5e45edB8537173EBEE36f
+  // tableland Address=>  0x7cdc035869B97305C271F11Be76cd4B78727B90C
+  // tablelandVerifiers Address=>  0x03ca8c748eCD772e4B210a58A7265F565a00c5d8
+  // verifiersRegistry Address=>  0x9047bcb098EaC9667Bbdc7b9C08849B5bAED883d
   // transfered to verifiersRegistry
-  // fundTheGoods Address=>  0xa55ad0622ccB464911486eF2F09622cE7bb96F7e
+  // fundTheGoods Address=>  0xa43A8E49120491e7fd0E674F7b1D5F7842723552
 
-  const VerifiersRegistryInstance = VerifiersRegistry.attach(
-    "0xAC0FDaC7Bd983B5696791A335395dfD176CF865c"
-  );
+  // const VerifiersRegistryInstance = VerifiersRegistry.attach(
+  //   "0xBF9f7ce3d32bA066096559a18eD1B1bDd07E5d63"
+  // );
   // let tx = await VerifiersRegistryInstance.registerCompany(
   //   "Filecoin",
-  //   "https://gateway.lighthouse.storage/ipfs/Qmeiw26nnU4PB7RFHKFo1iENZt4LfqLJ6JUCbQd4W2XKxW",
+  //   "bafybeifxf5iviyk2o3zeta74b4iszjqngfwrga5e4gnrnnygna6ct5p3wi/image.png",
   //   "Filecoin Grants",
-  //   "0x9C5e3cAC8166eD93F76BC0469b8Bf3ca715bA6B7"
+  //   wallet.address
   // ,{gasLimit:1000000});
   // await tx.wait();
 
-  tx = await VerifiersRegistryInstance.registerEvent(
-    "Filecoin",
-    "Grants",
-    "Filecoin FPG DevGrants",
-    "bafkreigkahigezk3rsrd6cgh2lkrdfn3dmxsns2daiv623oocoweyyyizu",
-    [
-      "0x9C5e3cAC8166eD93F76BC0469b8Bf3ca715bA6B7",
-      wallet.address,
-      "0x044B595C9b94A17Adc489bD29696af40ccb3E4d2",
-      "0x464e3F471628E162FA34F130F4C3bCC41fF7635d",
-    ],
-    0
-  );
-  await tx.wait();
+  // tx = await VerifiersRegistryInstance.registerEvent(
+  //   "Filecoin",
+  //   "Filecoin FPG DevGrants",
+  //   "bafybeifxf5iviyk2o3zeta74b4iszjqngfwrga5e4gnrnnygna6ct5p3wi",
+  //   [
+  //     "0x9C5e3cAC8166eD93F76BC0469b8Bf3ca715bA6B7",
+  //     wallet.address,
+  //     "0x044B595C9b94A17Adc489bD29696af40ccb3E4d2",
+  //     "0x464e3F471628E162FA34F130F4C3bCC41fF7635d",
+  //   ],
+  //   0
+  // );
+  // await tx.wait();
   const FundTheGoodsInstance = FundTheGoods.attach(FundTheGoodsAddress);
 };

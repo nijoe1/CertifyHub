@@ -2,20 +2,16 @@ import { Address } from "viem";
 import fundTheCommonsAbi from "../abi/fundTheCommonsAbi.json";
 import verifierRegistryAbi from "../abi/verifierRegistryAbi.json";
 
-//get the chains id from the env
-//optmisticTestnet = 420
-//base = 84531
-
 export const CONTRACTS = {
   fundTheCommons: {
     5: {
-      contract: "0x19C30fE810723Ad71E2F11A9Cd9d38417035f29B" as Address,
+      contract: "0x17A61dd87dD725C16BA7681b94904789FA870a02" as Address,
       abi: fundTheCommonsAbi,
     },
   },
   verifierRegistry: {
     5: {
-      contract: "0xAC0FDaC7Bd983B5696791A335395dfD176CF865c" as Address,
+      contract: "0xa83Ce42F9572972EcE795874102322c67a6BbB36" as Address,
       abi: verifierRegistryAbi,
     },
   },

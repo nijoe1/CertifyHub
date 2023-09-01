@@ -21,6 +21,8 @@ import {
   getClaims,
   getCompaniesVerifier,
 } from "@/lib/operator/index";
+import { useRouter } from "next/router";
+import HypercertCard from "@/components/HypercertCard";
 type Hypercert = {
   id: string;
   name: string;
@@ -38,6 +40,8 @@ const DashboardPage = () => {
   const [hypercerts, setHypercerts] = useState<Hypercert[] | undefined>();
   const [verifierCompanies, setVerifierCompanies] = useState([]);
   const { address } = useAccount();
+  const router = useRouter();
+  const id = router.query.address ? router.query.address : address;
 
   useEffect(() => {
     async function fetchHypercerts() {
@@ -45,8 +49,7 @@ const DashboardPage = () => {
         const registeredProjects = await getRegisteredProjects(
           "All Categories"
         );
-
-        let tokens = await getUserProjects(address);
+        let tokens = await getUserProjects(id);
         let filteredClaimIds = registeredProjects.map(
           (project: any) =>
             "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-" + project.claimID
@@ -60,49 +63,38 @@ const DashboardPage = () => {
           tokens.claimTokens.some((token: any) => token.claim.id === claimId)
         );
 
-        const combinedProjects = filteredClaimIdsInData.map(
-          (userProject: any) => {
-            const matchingRegisteredProject = filteredClaimIds.find(
-              (regProject: any) => regProject.claimID == userProject
-            );
-            console.log(matchingRegisteredProject);
+        const combinedProjects = filteredClaimIds.map((userProject: any) => {
+          const matchingRegisteredProject = filteredClaimIdsInData.find(
+            (regProject: any) => userProject.claimID == regProject
+          );
 
-            if (!matchingRegisteredProject) {
-              return {
-                claimID: userProject,
-                categories: [], // If no matching project found, initialize with empty categories
-              };
-            }
-
+          if (!matchingRegisteredProject) {
             return {
               claimID: userProject,
-              categories: matchingRegisteredProject.categories.map(
-                (category: any) => category.trim()
-              ),
+              categories: userProject.categories,
             };
           }
-        );
 
-        console.log(combinedProjects);
-
+          return {
+            claimID: userProject,
+            categories: userProject.categories,
+          };
+        });
         const hypercertList = [];
 
         for (const id of combinedProjects) {
           const claimTokens = await getClaims(id.claimID);
           const metadataUri = claimTokens?.claimTokens[0]?.claim?.uri;
           const metadata = await getData(metadataUri);
-          console.log(metadata);
-
-          metadata.hypercert.categories = id?.categories.map(
-            (item: any) => item.category
-          );
-          metadata.id = id ? id : undefined;
+          console.log(id.categories);
+          metadata.hypercert.categories = id?.categories ? id?.categories : [];
+          metadata.id = id.claimID;
           hypercertList.push(metadata);
         }
         // @ts-ignore
         setHypercerts(hypercertList);
 
-        let companies = await getCompaniesVerifier(address);
+        let companies = await getCompaniesVerifier(id);
         console.log(companies);
         let temp = [];
         for (const company of companies) {
@@ -111,7 +103,6 @@ const DashboardPage = () => {
         }
         // @ts-ignore
         setVerifierCompanies(temp);
-        console.log(verifierCompanies);
       }
     }
 
@@ -144,11 +135,17 @@ const DashboardPage = () => {
     setAttestModalOpen(true);
   };
 
+  const companies = [
+    { name: 'Filecoin', link: '/Funder?name=Filecoin' },
+    { name: 'Company B', link: '/Funder?name=AnotherCompany' },
+    // Add more companies as needed
+  ];
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       <div className="flex items-center justify-center p-4">
-        <UserProfile />
+        <UserProfile user={id} />
       </div>
       <div className="flex-grow flex items-center justify-center">
         {" "}
@@ -175,66 +172,43 @@ const DashboardPage = () => {
               <TabPanel value="projects">
                 <h2 className="text-lg font-semibold mb-2">My Projects</h2>
 
-                {hypercerts?.map((hypercert) => (
-                  <div
-                    key={hypercert.id}
-                    className="bg-blue-100 p-4 rounded mb-4"
-                  >
-                    {/* @ts-ignore */}
-                    <Link href={`/project?id=${hypercert.id.claimID}`}>
-                      <h3 className="text-md font-semibold mb-1">
-                        {hypercert.name}
-                      </h3>
-                    </Link>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {hypercert.description.slice(0, 50) + "..."}
-                    </p>
-                    {/* <div className="flex space-x-2">
-                      {hypercert.hypercert.categories.map(
-                        (category, categoryIndex) => (
-                          <span
-                            key={categoryIndex}
-                            className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs whitespace-nowrap"
-                          >
-                            {category.category}
-                          </span>
-                        )
-                      )}
-                    </div> */}
-                    <button
-                      onClick={handleAttestButtonClick}
-                      className="bg-blue-500 text-white px-2 py-1 rounded mt-2"
-                    >
-                      Attest Completed Task
-                    </button>
-                  </div>
-                ))}
+                <div className="grid-cols-1 ">
+                  {hypercerts?.map((hypercert) => (
+                    <HypercertCard
+                      // @ts-ignore
+                      key={hypercert.id}
+                      hypercert={hypercert}
+                      // @ts-ignore
+                      onDetailsClick={undefined}
+                    />
+                  ))}
+                </div>
               </TabPanel>
               <TabPanel value="verifier-companies">
-                <h2 className="text-lg font-semibold mb-2">
-                  Verifier Companies
+                <h2 className="text-lg font-semibold mb-2 flex justify-center items-center">
+                  Verifier in Companies
                 </h2>
                 {verifierCompanies.map((company, index) => (
-                  <div
-                    key={index}
-                    className={`bg-blue-100 p-4 rounded mb-4 ${
-                      activeTab === "verifier-companies" ? "bg-opacity-80" : ""
-                    }`}
-                  >
-                    <Link href={`/company`}>
-                      {/* @ts-ignore */}
-
-                      <h3 className="text-md font-bold mb-1">{company.name}</h3>
-                    </Link>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {/* @ts-ignore */}
-
-                      {company.description}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {/* @ts-ignore */}
-                      Admin: {company.admin}
-                    </p>
+                  <div>
+                    <h2>Company Table</h2>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Company Name</th>
+                          <th>Link</th>
+                        </tr>
+                      </thead>
+                      <tbody  className="ml-40 justify-center items-center">
+                        {companies.map((company, index) => (
+                          <tr key={index}>
+                            <td>{company.name}</td>
+                            <td>
+                              <a href={company.link}>Go to Funder</a>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 ))}
               </TabPanel>

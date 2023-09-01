@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@material-tailwind/react";
 import EthereumAddress from "./EthereumAddress";
 import { useAccount } from "wagmi";
 import FeedbackModal from "@/components/FeedbackModal";
-import { useContractWrite, usePrepareContractWrite } from "wagmi";
-import { CONTRACTS } from "@/constants/contracts";
+import FundModal from "@/components/FundModal";
+import AttestationForm from "@/components/AttestationForm";
+import { getProjectSplitter } from "@/lib/operator/index";
 
 type Hypercert = {
   id: string;
@@ -39,23 +40,40 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({
   } = hypercert;
   const { address } = useAccount();
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
-
-  const { config } = usePrepareContractWrite({
-    address: CONTRACTS.fundTheCommons[5].contract,
-    abi: CONTRACTS.fundTheCommons[5].abi,
-    functionName: "registerHypercertProject",
-    args: [
-      // hypercertID,
-      // fractionIDs,
-      // registeredCategories,
-      // registeredEvents,
-    ],
-  });
-  const { write } = useContractWrite(config);
+  const [fundModalOpen, setFundModalOpen] = useState(false);
+  const [attestModalOpen, setAttestModalOpen] = useState(false);
+  const [splitter, setSplitter] = useState([]);
 
   const handleLeaveFeedback = (project: any) => {
     setFeedbackModalOpen(true);
   };
+
+  const handleFund = (project: any) => {
+    setFundModalOpen(true);
+  };
+
+  const handleAttestButtonClick = () => {
+    setAttestModalOpen(true);
+  };
+
+  const getSplitterAddress = async (projectID: any) => {
+    const splitter = await getProjectSplitter(projectID);
+    console.log(splitter);
+    return splitter;
+  };
+
+  useEffect(() => {
+    async function fetchHypercerts() {
+      let temp = await getSplitterAddress(
+        id.replace("0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-", "")
+      );
+      console.log(temp);
+      setSplitter(temp);
+    }
+    if (splitter.length == 0) {
+      fetchHypercerts();
+    }
+  }, [splitter]);
 
   return (
     <div className="grid place-items-center py-8 overflow-y-auto">
@@ -99,20 +117,14 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({
 
         {/* Action Buttons */}
         <div className="flex justify-center gap-4 mt-4">
-          <Button color="blue" onClick={() => handleLeaveFeedback(1)}>
+          <Button color="blue" onClick={() => handleLeaveFeedback(id)}>
             Provide Feedback
           </Button>
-          <Button
-            color="green"
-            onClick={() => console.log("Fund Project clicked")}
-          >
+          <Button color="green" onClick={() => handleFund(id)}>
             Fund Project!
           </Button>
           {isOwner && (
-            <Button
-              color="green"
-              onClick={() => console.log("Fund Project clicked")}
-            >
+            <Button color="green" onClick={() => handleAttestButtonClick()}>
               attest update
             </Button>
           )}
@@ -136,6 +148,25 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({
           )}
           onClose={() => setFeedbackModalOpen(false)}
         />
+      )}
+      {fundModalOpen && (
+        <FundModal
+          project={id.replace(
+            "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-",
+            ""
+          )}
+          split={splitter[0]?.splitterAddress}
+          onClose={() => setFundModalOpen(false)}
+        />
+      )}
+      {/* Attest Modal */}
+      {attestModalOpen && (
+        <div className="z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
+          <AttestationForm
+            onClose={() => setAttestModalOpen(false)}
+            // Pass necessary props to the attest modal component
+          />
+        </div>
       )}
     </div>
   );

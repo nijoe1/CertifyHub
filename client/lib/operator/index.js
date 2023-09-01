@@ -5,15 +5,15 @@ import { ENS } from "@ensdomains/ensjs";
 import { providers } from "ethers";
 
 const tables = {
-  categories: "hypercert_categories_5_1569",
-  fundings: "hypercert_fundings_5_1570",
-  attestations: "hypercert_attestations_5_1571",
-  tasks: "hypercert_completed_tasks_5_1572",
-  project_events: "hypercert_events_5_1573",
-  project_splitters: "hypercert_splitters_5_1574",
-  company: "company_5_1575",
-  company_event: "event_5_1576",
-  company_event_verifiers: "event_verifiers_5_1577",
+  categories: "hypercert_categories_5_1641",
+  fundings: "hypercert_fundings_5_1642",
+  attestations: "hypercert_attestations_5_1643",
+  tasks: "hypercert_completed_tasks_5_1644",
+  project_events: "hypercert_events_5_1645",
+  project_splitters: "hypercert_splitters_5_1646",
+  company: "company_5_1647",
+  company_event: "event_5_1648",
+  company_event_verifiers: "event_verifiers_5_1649",
 };
 
 export const getIpfsGatewayUri = (cidOrIpfsUri) => {
@@ -109,6 +109,14 @@ export const storeData = async (data) => {
   const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
   console.log("Storing blob of: ", data);
   return await client.storeBlob(blob);
+};
+
+export const storeImage = async (image) => {
+  const client = defaultNftStorageClient; // Update this if you have a custom NFT storage client
+  const cid = await client.storeDirectory([
+    new File([image], `image.png`, { type: "image/png" }),
+  ]);
+  return cid;
 };
 
 export const getData = async (cidOrIpfsUri) => {
@@ -286,15 +294,9 @@ export const getEvents = async () => {
 };
 
 export const getEvent = async (eventID) => {
-  const query = `https://testnets.tableland.network/api/v1/query?format=objects&extract=true&statement=SELECT json_object(
-      'name', B.company,
-      'cid', B.cid, 
-      'verifiers', 
-      json_group_array(json_object(
-        'address', A.verifierAddress
-      )))
-    FROM ${tables.company_event_verifiers} AS A JOIN ${tables.company_event} AS B ON A.eventID = B.eventID 
-    WHERE B.eventID='${eventID}'`;
+  const query = `https://testnets.tableland.network/api/v1/query?&statement=
+  SELECT DISTINCT(A.verifierAddress),B.company,B.cid FROM ${tables.company_event_verifiers} AS A JOIN ${tables.company_event} AS B ON A.eventID = B.eventID 
+      WHERE B.eventID='${eventID}' AND B.cid != ''`;
 
   const categories = await fetch(query);
   let result = await categories.json();
@@ -332,20 +334,22 @@ export const getClaimEvents = async (claimID) => {
 };
 
 export const getFunderDetails = async (funder) => {
-  const query = `https://testnets.tableland.network/api/v1/query?format=objects&extract=true&statement=SELECT json_object(
-                    'name', A.company,
-                    'image', A.image, 
-                    'description', A.description,
-                    'admin', A.admin ,
-                    'events', 
-                    json_group_array(json_object(
-                        'eventID', C.eventID,
-                        'cid',C.cid,
-                        'endsAt', C.endsAt
-                        )
-                    )
-                )FROM ${tables.company_event} AS C , ${tables.company} AS A JOIN ${tables.company_event} AS B ON A.company = B.company 
-                WHERE A.company='${funder}' AND B.eventID = C.eventID`;
+  const query = `https://testnets.tableland.network/api/v1/query?&statement=
+  SELECT DISTINCT(B.eventID),B.cid , A.company, A.description, A.image, A.admin FROM ${tables.company} AS A JOIN ${tables.company_event} AS B ON A.company = B.company 
+                  WHERE A.company='${funder}' AND B.cid != ''`;
+
+  const fullURL = encodeURIComponent(query);
+
+  const events = await fetch(query);
+  let result = await events.json();
+  return result;
+};
+
+export const getFunderDetails2 = async (funder) => {
+  const query = `https://testnets.tableland.network/api/v1/query?&statement=
+  SELECT A.company, A.description, A.image, A.admin FROM ${tables.company} AS A 
+                  WHERE A.company='${funder}' `;
+
   const fullURL = encodeURIComponent(query);
 
   const events = await fetch(query);
@@ -367,6 +371,16 @@ export const getCategories = async () => {
 export const getRegisteredCompanies = async (userAddress) => {
   const categories = await fetch(
     "https://testnets.tableland.network/api/v1/query?format=objects&extract=true&statement=%20SELECT%20DISTINCT(category)%20FROM%20%20%20hypercert_categories_5_1486"
+  );
+  let result = await categories.json();
+  return result;
+};
+
+export const getProjectSplitter = async (projectID) => {
+  const categories = await fetch(
+    `https://testnets.tableland.network/api/v1/query?&statement=SELECT A.splitterAddress , A.createdAt 
+      FROM ${tables.project_splitters} AS A 
+      WHERE A.claimID='${projectID}'`
   );
   let result = await categories.json();
   return result;

@@ -14,14 +14,14 @@ const ChosenCategoriesBox: React.FC<ChosenCategoriesBoxProps> = ({
 }) => {
   return (
     <div className="bg-blue-100 p-2 rounded">
-      <h4 className="text-sm font-semibold">{name}`</h4>
-      <div className="mt-2">
+      <h4 className="text-sm font-semibold">{name}</h4>
+      <div className="mt-2 flex flex-col"> {/* Use "flex" and "flex-col" classes */}
         {chosenCategories.map((category, index) => (
           <span
             key={index}
-            className="bg-blue-300 text-black px-2 py-1 rounded-full mr-2 mb-2"
+            className="bg-blue-300 text-black px-2 py-1 rounded-full mb-1" // Remove "mr-2"
           >
-            {category}
+            {category.slice(0, 35) + "..."}
           </span>
         ))}
       </div>

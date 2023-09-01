@@ -18,7 +18,29 @@ module.exports = async({ deployments }) => {
     const { deploy } = deployments;
     console.log("Wallet+ Ethereum Address:", wallet.address);
 
-    // QUERY PREFIX = https://testnets.tableland.network/api/v1/query?statement=
+    // paymentSplitter_X_Drips Address=>  0x0e572fd19f17c93408404F39e2c955F16DAd5027
+    // factory Address=>  0x6609E5C85935b0139370300f9805d5acE8b39f98
+    // tableland Address=>  0xAA1AAE87Df6e6889ace9eaE64180559dAF58bf48
+    // tablelandVerifiers Address=>  0x1397334c29b25f3aBe0c624786AA56d30817DBC6
+    // verifiersRegistry Address=>  0xE9cc9F27d90D0089e503162F010Cb885E4D81571
+    // fundTheGoods Address=>  0x5116b711D200e366b656f623cB2Ea1F829C7792f
+
+    // AddresDriver Address => 0x70E1E1437AeFe8024B6780C94490662b45C3B567
+
+    const PaymentSplitter_X_Drips = await hre.ethers.getContractFactory("PaymentSplitter_X_Drips");
+    const paymentSplitter_X_Drips = await PaymentSplitter_X_Drips.deploy("0x70E1E1437AeFe8024B6780C94490662b45C3B567");
+    await paymentSplitter_X_Drips.deployed();
+        console.log("paymentSplitter_X_Drips Address=> ", paymentSplitter_X_Drips.address);
+
+    const Factory = await hre.ethers.getContractFactory("Factory");
+    const factory = await Factory.deploy(paymentSplitter_X_Drips.address);
+    await factory.deployed();
+    console.log("factory Address=> ", factory.address);
+
+    let FactoryInstance = Factory.attach(factory.address)
+
+    let tx = await FactoryInstance.createSplitter([wallet.address],[100])
+    await tx.wait()
 
     const Tableland = await hre.ethers.getContractFactory("Tableland");
     const tableland = await Tableland.deploy();
@@ -35,17 +57,9 @@ module.exports = async({ deployments }) => {
 
     console.log("tablelandVerifiers Address=> ", tablelandVerifiers.address);
 
-    // tableland Address=>  0x94038060D28e6A74cF4d081039d76e839fAa7CA3
-    // tablelandVerifiers Address=>  0xe0E5713CFaf4CDEf0035723100f9a544E70fea30
-    // verifiersRegistry Address=>  0xcfB5274291cA856ECB535Ca3b44C267617812C83
-    // transfered to verifiersRegistry
-    // fundTheGoods Address=>  0xeBf027DD3Dc6e820aD862c837246A29cCD25930B
-
     const tablelandAddress = "0x11911136E9bA5579eAC69B2e812db3bC42033726";
     const tablelandVerifiersAddress =
         "0x5e62cd517dbf8C90eD4014e541e7d7018b1c69bc";
-    const SPLITTERIMPLEMENTATION = "0x4616fC6060D6d6176F49Edc6bb6975197F0D2e4A";
-    const THIRDWEBFACTORY = "0x5DBC7B840baa9daBcBe9D2492E45D7244B54A2A0";
     const HYPERCERT = "0x822F17A9A5EeCFd66dBAFf7946a8071C265D1d07";
 
     const instance = Tableland.attach(tableland.address);
@@ -75,8 +89,7 @@ module.exports = async({ deployments }) => {
         verifiersRegistry.address,
         HYPERCERT,
         tableland.address,
-        THIRDWEBFACTORY,
-        SPLITTERIMPLEMENTATION
+        factory.address
     );
 
     await fundTheGoods.deployed();

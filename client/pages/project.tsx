@@ -19,6 +19,7 @@ import {
   getUserHypercerts,
   getClaimEvents,
 } from "../lib/operator/index";
+import { getAssets, getTemplates } from "@/lib/CO2Storage/index";
 import { useRouter } from "next/router";
 import Link from "next/link"; // Import the Link component
 import { useAccount } from "wagmi";
@@ -38,6 +39,8 @@ const ProjectPage = () => {
     async function fetchHypercerts(claimID: any) {
       const claimTokens = await getClaims(claimID);
       const userClaims = await getUserHypercerts(address);
+      // let assets = await getAssets();
+      // console.log("CO2STORAGE ASSETS : ", assets);
       console.log(userClaims);
       if (userClaims.claims.length > 0) {
         for (const claim of userClaims.claims) {
@@ -58,16 +61,18 @@ const ProjectPage = () => {
       let registeredEvents = await getClaimEvents(id);
       let temp = [];
       for (const event of registeredEvents) {
-        let metadata = await getData(event.cid);
-        metadata.eventID = event.eventID;
-        temp.push(metadata);
+        if (event.cid != "") {
+          let metadata = await getData(event.cid);
+          metadata.eventID = event.eventID;
+          temp.push(metadata);
+        }
       }
       console.log(temp);
       // @ts-ignore
       setEventsMetadata(temp);
 
       const metadataUri = claimTokens?.claimTokens[0]?.claim.uri;
-      const metadata = await getData(metadataUri);
+      let metadata = await getData(metadataUri);
       metadata.id = claimID || undefined;
       if (metadata) {
         setHypercertData(metadata);

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-
+import { useContractWrite, usePrepareContractWrite } from "wagmi";
+import { CONTRACTS } from "@/constants/contracts";
 type FeedbackModalProps = {
   project: any; // You should replace 'any' with the actual type of your project
   onClose: () => void;
@@ -9,7 +10,19 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ project, onClose }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [rating, setRating] = useState(1); // Default rating to 1
-
+  const ZERO_BYTES32 = "0x0000000000000000000000000000000000000000000000000000000000000000"
+  const { config } = usePrepareContractWrite({
+    address: CONTRACTS.fundTheCommons[5].contract,
+    abi: CONTRACTS.fundTheCommons[5].abi,
+    functionName: "attestFeedback",
+    args: [
+      project,
+      rating,
+      ZERO_BYTES32,
+      description,
+    ],
+  });
+  const { write } = useContractWrite(config);
   const handleRatingChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRating(Number(event.target.value));
   };
@@ -17,7 +30,8 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ project, onClose }) => {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    // TODO: Handle feedback submission, e.g., send feedback to server
+    // @ts-ignore
+    write;
 
     // Clear form inputs
     setName("");

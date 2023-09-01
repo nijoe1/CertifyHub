@@ -3,10 +3,9 @@ import { useAccount } from "wagmi";
 import { fetchEnsName } from "@wagmi/core";
 import { getProfile } from "@/lib/operator/index";
 
-const UserProfile = () => {
-  const { address } = useAccount();
+const UserProfile = ({user}) => {
   const [ens, setEns] = useState(undefined);
-
+  const {address} = useAccount()
   const [profileData, setProfileData] = useState({
     name: "Name",
     title: "Web Developer",
@@ -19,7 +18,7 @@ const UserProfile = () => {
   useEffect(() => {
     async function fetchHypercerts() {
       let resolvedAddress = await fetchEnsName({
-        address: address as `0x{string}`,
+        address: user,
       });
 
       if (resolvedAddress) {
@@ -34,7 +33,7 @@ const UserProfile = () => {
     }
 
     fetchHypercerts();
-  }, [ens]);
+  }, [ens,user]);
 
   return (
     <div className="flex items-center justify-center p-4">
@@ -68,15 +67,15 @@ const UserProfile = () => {
             </a>
           </div>
           <div className="flex justify-center space-x-2">
-            {ens ? (
+            {(ens && !user) || (ens && user == address) ?(
               <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
                 Update Profile
               </button>
-            ) : (
+            ) : !user || user == address ? (
               <button className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
                 RegisterENS
               </button>
-            )}
+            ):<div></div>}
           </div>
         </div>
       </div>

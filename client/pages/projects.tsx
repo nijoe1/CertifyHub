@@ -65,7 +65,7 @@ const Projects = () => {
 
   const categoryOptions = [
     { value: "All Categories", label: "All Categories" },
-    { value: "DATA( CO2.Storage )", label: "DATA( CO2.Storage )" },
+    { value: "CO2.Storage", label: "CO2.Storage" },
     { value: "DEFI", label: "DEFI" },
     { value: "NFTs", label: "NFTs" },
     { value: "DAOs", label: "DAOs" },

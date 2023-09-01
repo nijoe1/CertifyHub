@@ -33,13 +33,13 @@ export default function Home() {
       title: "Hypercerts",
       description:
         "wagmi is a collection of React Hooks containing everything you need to start working with Ethereum.",
-      href: "https://wagmi.sh",
+      href: "https://testnet.hypercerts.org/app/gallery-all",
     },
     {
-      title: "Examples",
+      title: "Drips",
       description:
         "Start by exploring some pre-built examples to inspire your creativity!",
-      href: `${origin}/examples`,
+      href: `https://co2.storage/assets/bafyreifyxfrvpf4xek2afrp46snz6oho4ydc3m7ykviagrmtla52r3knli`,
     },
   ];
   return (
