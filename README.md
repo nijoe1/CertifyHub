@@ -2,20 +2,17 @@
 
 [![CertifyHub Demo Video](https://img.youtube.com/vi/WYevtbEEsuU/0.jpg)](https://www.youtube.com/watch?v=WYevtbEEsuU)
 
-## Repository
-
-Find the CertifyHub code on GitHub: [CertifyHub GitHub Repository](https://github.com/nijoe1/CertifyHub)
-
 ## Project Website
 
 Visit the CertifyHub website to explore projects and learn more: [CertifyHub Website](https://certify-hub.vercel.app/projects)
 
-CertifyHub is a decentralized platform that connects funders with projects by utilizing blockchain technology. The platform allows project owners to register hypercerts, which showcase project details, and utilizes various technologies to facilitate transparent funding and collaboration.
+## Project Demo Video 
+
+Check the demo video on Youtube **ADD SUBTITLES** : [Demo Video](https://www.youtube.com/watch?v=WYevtbEEsuU)
 
 ## Overview
 
-CertifyHub enables the seamless connection between funders and projects through the following features:
-
+CertifyHub is a decentralized platform that connects funders with projects by utilizing blockchain technology. The platform allows project owners to register hypercerts, which showcase project details, and utilizes Openzeppelin splitter and Drips  technologies to facilitate transparent funding and collaboration achieved with Tableland integration.
 ## Problem
 
 Traditional funding platforms often lack transparency, decentralized control, and efficient payment methods. CertifyHub addresses these issues by utilizing blockchain technology and decentralized protocols.
@@ -26,11 +23,11 @@ CertifyHub is a groundbreaking platform that revolutionizes the way funders conn
 
 ## Technologies Used
 
-- Hypercerts: Showcasing project details and ensuring transparency.
-- IPFS and Filecoin (NFT.Storage and CO2.Transform): Storing and retrieving project-related content in a decentralized manner.
-- Drips Protocol: Supporting stream payments and traditional funding splits.
+- Hypercerts: Showcasing project details and ensuring transparency. Certify-hub integrates hypercerts to add a feedback layer, a project update layer and a funding layer on top of them.
+- IPFS and Filecoin (NFT.Storage and CO2.Transform): Storing and retrieving project-related content in a decentralized manner using NFT.Storage. And CO2.Transform to support Template contributors and validate their template assets.
+- Drips Protocol: Supporting stream payments to hypercerts based on the shares of each project shareholder and traditional funding splits.
 - Tableland: Storing contract interactions with decentralized access control.
-- Ethereum Name Service (ENS): Providing user-friendly Ethereum addresses.
+- Ethereum Name Service (ENS): Providing user-friendly Ethereum addresses together with a user profile.
 
 ## Contracts
 
