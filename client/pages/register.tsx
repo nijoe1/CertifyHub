@@ -74,7 +74,7 @@ const RegisterPage = () => {
       let events = await getEvents();
       const options = [];
       for (const event of events) {
-        if(event.cid!=""){
+        if (event.cid != "") {
           const metadata = await getData(event.cid);
           console.log(metadata);
           options.push({
@@ -125,9 +125,11 @@ const RegisterPage = () => {
     if (selectedCategory && !registeredCategories.includes(selectedCategory)) {
       // @ts-ignore
       if (added == 2) {
+        // @ts-ignore
         setRegisteredCategories(["CO2.Storage", selectedCategory]);
         setSelectedCategory(selectedCategory); // Clear selected category after adding
       } else {
+        // @ts-ignore
         setRegisteredCategories([...registeredCategories, selectedCategory]);
         setSelectedCategory(""); // Clear selected category after adding
       }
@@ -195,31 +197,46 @@ const RegisterPage = () => {
           {/* Add Category Form */}
           {showCategoryForm && (
             <div className="mt-4 mb-4 flex items-center">
-              {added==0 ?(<h4>Add category</h4>): (<h4>Add Template</h4>)}
+              {added == 0 ? <h4>Add category</h4> : <h4>Add Template</h4>}
               <Select
                 value={selectedCategory}
                 // @ts-ignore
                 onChange={(value) => {
                   if (added == 0) {
                     if (value == "CO2.Storage") {
+                      // @ts-ignore
+
                       setRegisteredCategories([value]);
                       setOptions(templateOptions);
                       setAdded(1);
                     } else {
+                      // @ts-ignore
+
                       setSelectedCategory(value);
                       handleAddCategory();
                     }
                   } else if (added == 1) {
+                    // @ts-ignore
+
                     setSelectedCategory(value);
+                    // @ts-ignore
+
                     setSelectedTemplate([value]);
-                    setRegisteredCategories([value,"CO2.Storage"]);
+                    // @ts-ignore
+
+                    setRegisteredCategories([value, "CO2.Storage"]);
 
                     setAdded(2);
                   } else {
-                    setSelectedCategory(value);
-                    setSelectedTemplate([value]);
-                    setRegisteredCategories([value,"CO2.Storage"]);
+                    // @ts-ignore
 
+                    setSelectedCategory(value);
+                    // @ts-ignore
+
+                    setSelectedTemplate([value]);
+
+                    // @ts-ignore
+                    setRegisteredCategories([value, "CO2.Storage"]);
                   }
                 }}
                 className=" md:w-69 py-5" // Adjust width as needed
@@ -262,14 +279,16 @@ const RegisterPage = () => {
                 chosenCategories={registeredCategories}
               />
             </div>
-          ) : registeredCategories.length > 0 ?(
+          ) : registeredCategories.length > 0 ? (
             <div className="mb-4">
               <ChosenCategoriesBox
                 name="Choosen Categories:"
                 chosenCategories={["CO2.Storage"]}
               />
             </div>
-          ):(<div></div>)}
+          ) : (
+            <div></div>
+          )}
           {/* Display Chosen Categories */}
           {added > 0 && (
             <div className="mb-4">

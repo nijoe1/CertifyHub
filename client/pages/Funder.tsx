@@ -41,7 +41,7 @@ const FunderPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [eventsMetadata, setEventsMetadata] = useState<EventMetadata[]>([]);
-  const [cid, setCID] = useState();
+  const [cid, setCID] = useState("");
   const [defined, setDefined] = useState(false);
 
   const [eventData, setEventData] = useState({

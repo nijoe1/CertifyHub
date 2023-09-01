@@ -78,15 +78,18 @@ const FundersPage = () => {
     }
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = (e: any) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
         // Convert the data URL to a Blob
+        // @ts-ignore
         const blob = new Blob([event.target.result], { type: file.type });
 
         // Update the newFunder state with the Blob
+        // @ts-ignore
+
         setNewFunder({ ...newFunder, image: blob });
       };
       reader.readAsArrayBuffer(file);

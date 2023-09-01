@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { fetchEnsName } from "@wagmi/core";
 import { getProfile } from "@/lib/operator/index";
+type UserProfileProps = {
+  user: any; // You should replace 'any' with the actual type of your project
 
-const UserProfile = ({user}) => {
+};
+const UserProfile: React.FC<UserProfileProps> =({user}) => {
   const [ens, setEns] = useState(undefined);
   const {address} = useAccount()
   const [profileData, setProfileData] = useState({

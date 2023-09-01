@@ -42,7 +42,8 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [fundModalOpen, setFundModalOpen] = useState(false);
   const [attestModalOpen, setAttestModalOpen] = useState(false);
-  const [splitter, setSplitter] = useState([]);
+  const [splitter, setSplitter] = useState([{getSplitterAddress:""}]);
+  const [spli,setSplit] =useState("")
 
   const handleLeaveFeedback = (project: any) => {
     setFeedbackModalOpen(true);
@@ -62,6 +63,7 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({
     return splitter;
   };
 
+
   useEffect(() => {
     async function fetchHypercerts() {
       let temp = await getSplitterAddress(
@@ -69,6 +71,7 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({
       );
       console.log(temp);
       setSplitter(temp);
+      setSplit(temp[0]?.splitterAddress)
     }
     if (splitter.length == 0) {
       fetchHypercerts();
@@ -155,7 +158,7 @@ const HypercertProfile: React.FC<HypercertProfileProps> = ({
             "0x822f17a9a5eecfd66dbaff7946a8071c265d1d07-",
             ""
           )}
-          split={splitter[0]?.splitterAddress}
+          split={spli}
           onClose={() => setFundModalOpen(false)}
         />
       )}

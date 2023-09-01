@@ -129,7 +129,7 @@ const EventPage = () => {
             <TabPanel value="projects">
               {hypercerts.length > 0 ? (
                 <div className="grid grid-cols-1 mx-5 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-80">
-                  {hypercerts.map((hypercert) => (
+                  {hypercerts.map((hypercert:any) => (
                     <HypercertCard
                       // @ts-ignore
                       key={hypercert.id}
@@ -155,7 +155,7 @@ const EventPage = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {verifiers.map((verifier, index) => (
+=                    {verifiers.map((verifier:any, index:any) => (
                       <tr key={index} className="odd:bg-gray-50 even:bg-white">
                         <td className="border border-gray-300 p-2">
                           <Link href={`/dashboard?address=${verifier}`}>
